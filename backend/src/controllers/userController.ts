@@ -40,7 +40,7 @@ const signUpUser:RequestHandler = async(req, res)=>{
 const loginUser:RequestHandler = async(req, res)=>{
     const { username, password } = req.body
     const user = await User.findOne({user:username}).lean()
-    if(!user){
+    if(!user || typeof user == 'undefined'){
         res.status(404).json({error:true, msg:"User and/or Password are incorrect"})
         return
     }
@@ -53,7 +53,7 @@ const loginUser:RequestHandler = async(req, res)=>{
             error:false, 
             msg:'Successfully logged', 
             token:WebToken(user._id),
-            rol:user.rol
+            user:user
         }
     )
     return

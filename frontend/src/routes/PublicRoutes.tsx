@@ -14,7 +14,7 @@ export default function PublicRoutes({ children }: Props) {
     const rol = localStorage.getItem('rol')
 console.log({ token, rol })
     if (token && token !== '') {
-      setIsLogged(true)
+      setIsLogged(true) 
       if (rol === 'user') nav('/index')
       else if (rol === 'admin') nav('/special-index')
     } else {

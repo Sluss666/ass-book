@@ -6,8 +6,14 @@ import { type Status } from '../types/hooks/state'
 import Warn from '../components/warns/CommonWarn'
 import api from '../conf/api'
 import type { AxiosError } from 'axios'
+import { useUser } from '../context/useUser'
+import { useNavigate } from 'react-router-dom'
+
 
 const Login = ()=>{
+
+    const { setUser } = useUser()
+    const navigate = useNavigate()
 
     const UsernameProps : InputProps =
         {id:'username', type:'text', label:'Username:', placeholder:'Put your username'}
@@ -42,10 +48,20 @@ const Login = ()=>{
                 return    
             }
             localStorage.setItem('token', data.token)
-            localStorage.setItem('rol', data.rol)
+            localStorage.setItem('rol', data.user.rol)
+            const userData = {
+                name:data.user.name,
+                surnames:data.user.surname,
+                rol:data.user.rol,
+                user:data.user.user,
+                phone:data.user.phone,
+                description:data.user.description,
+                pic:data.user.pic
+            }
+            setUser(userData)
             setTimeout(()=>{
                 setStatus('success');setText(data.msg)
-                setTimeout(()=>{location.href = '/'}, 500)
+                setTimeout(()=>{navigate('/index')}, 500)
             }, 500)
             
             return
