@@ -44,19 +44,28 @@ const loginUser:RequestHandler = async(req, res)=>{
         res.status(404).json({error:true, msg:"User and/or Password are incorrect"})
         return
     }
-    if(!comparePassword(password, user.password)){
+    const $PW_MATCH = await comparePassword(password, user.password)
+    if(!$PW_MATCH){
         res.status(404).json({error:true, msg:"User and/or Password are incorrect"})
         return
     }
-    res.status(200).json(
-        {
-            error:false, 
-            msg:'Successfully logged', 
-            token:WebToken(user._id),
-            user:user
-        }
-    )
-    return
+    try {
+        user.online = true
+        console.log(`User status updated: ${user.online ? 'online' : 'disconnected'}`)
+        res.status(200).json(
+            {
+                error:false, 
+                msg:'Successfully logged', 
+                token:WebToken(user._id),
+                user:user
+            }
+        )
+    } catch(e) {
+        console.error('Error while login: ', e)
+        res.status(400).json({msg:`Error while login. Try again`, error:true})
+        return
+    }
+    
 }
 const forgotPassword:RequestHandler = async(req, res)=>{
     const { username, phone } = req.body
@@ -198,6 +207,33 @@ const deleteUser:RequestHandler = async(req, res)=>{
     }
 }
 
+const logoutSession:RequestHandler = async(req, res)=>{
+    const { _id } = req.body
+    if(!_id){
+        res.status(404).json({error:true, msg:'Error while loggouting. Please try again.'})
+        return
+    }
+    try {
+        const user = await User.findById(_id).lean()
+        if(!user){
+            res.status(500).json({error:true, msg:'Error while loggouting. Please try again.'})
+            return
+        }
+        if(user.online == false){
+            res.status(500).json({error:true, msg:"You're already logged out"})
+            return
+        }
+        user.online = false
+        await user.save()
+        res.status(200).json({error:false, msg:"Successfully logged out"})
+        return
+    } catch(err) {
+        console.error('Error closing session', err)
+        res.status(500).json({error:true, msg:"You're already logged out"})
+        return
+    }
+}
+
 export { 
     signUpUser, 
     loginUser, 
@@ -208,5 +244,6 @@ export {
     changePassword, 
     changePicture,
     changeDescription,
-    deleteUser
+    deleteUser,
+    logoutSession
 }

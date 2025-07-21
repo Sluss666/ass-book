@@ -8,7 +8,8 @@ import {
     changeDescription,
     deleteUser,
     allowChangePass,
-    restorePass
+    restorePass,
+    logoutSession
 } from "../controllers/userController"
 import { Router, Request, Response } from 'express'
 import checkAuth from "../middleware/checkAuth"
@@ -27,6 +28,7 @@ router.route('/verify').get(checkAuth,
     }
 )
 
+
 router.route('/start')
     .put(signUpUser)
     .post(loginUser)
@@ -43,5 +45,7 @@ router.route('/user')
 
 router.route('/change-description').put(checkAuth, changeDescription)
 router.route('/change-picture').put(checkAuth, changePicture)
+
+router.route('/exit').put(checkAuth, logoutSession)
 
 export default router

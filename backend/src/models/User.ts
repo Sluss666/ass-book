@@ -10,6 +10,7 @@ export interface UserITFace extends Document {
     phone: string
     password:string
     pic:string
+    online:boolean
     createdAt?: Date
     updatedAt?: Date
 }
@@ -40,6 +41,10 @@ const $Schema = new Schema<UserITFace>(
         pic:{
             type:String,
             trim:true
+        },
+        online:{
+            type:Boolean,
+            default:false
         },
         phone:{
             type:String,

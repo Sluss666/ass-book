@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-export type Roles = 'admin' | 'mod' | 'user' | 'unactive';
+export type Roles = 'admin' | 'mod' | 'user' | 'unactive' | 'guest';
 
 export type User = {
   name?: string;
