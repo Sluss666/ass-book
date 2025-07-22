@@ -6,7 +6,7 @@ const newMessage:RequestHandler = async(req, res)=>{
     try{
         const { _id, to, message } = req.body
         const file = req.file
-
+        
         const userFrom = await User.findById(_id)
         const userTo = await User.findOne({user:to})
 

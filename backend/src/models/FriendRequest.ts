@@ -1,8 +1,11 @@
 import {model, Schema, Types, Document} from 'mongoose'
+type ReqStates = 'waiting' | 'accepted' | 'declined'
+
 export interface FriendRequestITFace extends Document {
     _id:Types.ObjectId
     from:Types.ObjectId
     to:Types.ObjectId
+    state:ReqStates
     createdAt?:Date
     updatedAt?:Date
 }
@@ -15,6 +18,12 @@ const $Schema = new Schema<FriendRequestITFace>(
         to:{
             type:Schema.Types.ObjectId,
             ref:'User'
+        },
+        state:{
+            type:String,
+            required:true,
+            enum:['waiting', 'accepted', 'declined'] ,
+            default:'waiting'
         }
     },
     {
