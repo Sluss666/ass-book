@@ -11,6 +11,7 @@ export interface UserITFace extends Document {
     password:string
     pic:string
     online:boolean
+    blockedUsers: string[]
     createdAt?: Date
     updatedAt?: Date
 }
@@ -54,7 +55,12 @@ const $Schema = new Schema<UserITFace>(
             type:String,
             required:true,
             trim:true
-        }
+        },
+        blockedUsers: [
+            { 
+                type: Schema.Types.ObjectId, ref: 'User' 
+            }
+        ]
     },
     {
         timestamps:true

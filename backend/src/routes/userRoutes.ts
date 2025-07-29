@@ -9,7 +9,9 @@ import {
     deleteUser,
     allowChangePass,
     restorePass,
-    logoutSession
+    logoutSession,
+    blockUser,
+    getUsers
 } from "../controllers/userController"
 import { Router, Request, Response } from 'express'
 import checkAuth from "../middleware/checkAuth"
@@ -28,6 +30,7 @@ router.route('/verify').get(checkAuth,
     }
 )
 
+router.route('/').get(checkAuth, getUsers)
 
 router.route('/start')
     .put(signUpUser)
@@ -43,9 +46,11 @@ router.route('/user')
     .post(checkAuth, changePassword)
     .delete(checkAuth, deleteUser)
 
+router.route('/user/block/:id').patch(checkAuth, blockUser)
+
 router.route('/change-description').put(checkAuth, changeDescription)
 router.route('/change-picture').put(checkAuth, changePicture)
 
-router.route('/exit').put(checkAuth, logoutSession)
+router.route('/exit/:_id').get(checkAuth, logoutSession)
 
 export default router

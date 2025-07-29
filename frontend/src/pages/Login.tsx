@@ -7,13 +7,11 @@ import Warn from '../components/warns/CommonWarn'
 import api from '../conf/api'
 import type { AxiosError } from 'axios'
 import { useUser } from '../context/useUser'
-import { useNavigate } from 'react-router-dom'
 
 
 const Login = ()=>{
 
     const { setUser } = useUser()
-    const navigate = useNavigate()
 
     const UsernameProps : InputProps =
         {id:'username', type:'text', label:'Username:', placeholder:'Put your username'}
@@ -50,6 +48,7 @@ const Login = ()=>{
             localStorage.setItem('token', data.token)
             localStorage.setItem('rol', data.user.rol)
             const userData = {
+                _id:data.user._id,
                 name:data.user.name,
                 surnames:data.user.surname,
                 rol:data.user.rol,
@@ -61,7 +60,7 @@ const Login = ()=>{
             setUser(userData)
             setTimeout(()=>{
                 setStatus('success');setText(data.msg)
-                setTimeout(()=>{navigate('/index')}, 500)
+                setTimeout(()=>{window.location.reload()}, 500)
             }, 500)
             
             return

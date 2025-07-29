@@ -1,17 +1,33 @@
-import {RequestHandler} from 'express'
+import {RequestHandler, Request, Response} from 'express'
 import User from '../models/User'
 import { storeCode, verifyCode } from '../helpers/codeStoring'
 import sendSMS from '../helpers/sms'
 import { hashPassword, comparePassword } from '../helpers/passwordHasher'
 import WebToken from '../helpers/generateJWT'
+import { UserITFace } from '../models/User';
+
+interface AuthRequest extends Request {
+    user: UserITFace
+}
+
+const getUsers:RequestHandler = async(req, res)=>{
+    try{
+        const Users = await User.find()
+        res.json(Users)
+    } catch (error) {
+        console.error("Error fetching users:", error)
+        res.status(500).json({ error: "Server error" })
+    }
+}
 
 const signUpUser:RequestHandler = async(req, res)=>{
     const { username, password, cpassword } = req.body
-    const usernameTaken = await User.findOne({user:username}).lean()
-    if(usernameTaken){
+    const usernameTaken = await User.findOne({user:username})
+    if(usernameTaken && usernameTaken.user == username){
         res.status(401).json({error:true, msg:`Username already taken`})
         return
     }
+
     if(password !== cpassword){
         res.status(401).json({error:true, msg:`Passwords doesn't match`})
         return
@@ -39,7 +55,7 @@ const signUpUser:RequestHandler = async(req, res)=>{
 }
 const loginUser:RequestHandler = async(req, res)=>{
     const { username, password } = req.body
-    const user = await User.findOne({user:username}).lean()
+    const user = await User.findOne({user:username})
     if(!user || typeof user == 'undefined'){
         res.status(404).json({error:true, msg:"User and/or Password are incorrect"})
         return
@@ -49,8 +65,10 @@ const loginUser:RequestHandler = async(req, res)=>{
         res.status(404).json({error:true, msg:"User and/or Password are incorrect"})
         return
     }
+
     try {
         user.online = true
+        await user.save()
         console.log(`User status updated: ${user.online ? 'online' : 'disconnected'}`)
         res.status(200).json(
             {
@@ -208,13 +226,13 @@ const deleteUser:RequestHandler = async(req, res)=>{
 }
 
 const logoutSession:RequestHandler = async(req, res)=>{
-    const { _id } = req.body
+    const { _id } = req.params
     if(!_id){
         res.status(404).json({error:true, msg:'Error while loggouting. Please try again.'})
         return
     }
     try {
-        const user = await User.findById(_id).lean()
+        const user = await User.findById(_id)
         if(!user){
             res.status(500).json({error:true, msg:'Error while loggouting. Please try again.'})
             return
@@ -234,6 +252,26 @@ const logoutSession:RequestHandler = async(req, res)=>{
     }
 }
 
+const blockUser:RequestHandler = async(req, res)=>{
+  const userId = (req as AuthRequest).user.id          // <- Auth user
+  const blockedId = req.params.id     // <- User to block
+  
+  if (userId === blockedId)
+    return res.status(400).json({ error: 'Can´t block yourself' })
+
+  const user = await User.findById(userId)
+  if(!user)
+    return res.status(400).json({ error: 'Unexpected Error. Try Again' })
+  if(user.blockedUsers.includes(blockedId))
+    return res.status(400).json({ error: 'User already blocked' })
+
+  user.blockedUsers.push(blockedId)
+  await user.save()
+
+  res.json({ success: true, blockedUsers: user.blockedUsers })
+}
+
+
 export { 
     signUpUser, 
     loginUser, 
@@ -245,5 +283,7 @@ export {
     changePicture,
     changeDescription,
     deleteUser,
-    logoutSession
+    logoutSession,
+    blockUser,
+    getUsers
 }
