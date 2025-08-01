@@ -40,7 +40,6 @@ export const UsersProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const removeUser = async (id: string) => {
-    await api.delete(`users/${id}`)
     setUsers(prev => prev.filter(u => u._id !== id))
   }
 

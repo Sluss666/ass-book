@@ -19,15 +19,15 @@ function FindPeople() {
         <div className="w-fit fixed mt-24 h-full bg-black  border-r border-slate-600 overflow-y-auto" >
             <p className="text-center mt-5 mb-2  text-white  ">Find People</p>
             <ul className="">
-                {users.filter(u => String(u._id) !== String(user._id) && u.user !== user.user).map(u =>
+                {users.filter(us => String(us._id) !== String(user._id) && us.user !== user.user).map(u =>
                 (
                     <li key={u._id} className="border-y border-slate-600 flex justify-evenly p-3 w-full h-24 bg-white/90">
                         <div className="flex items-center ">
                             <img className="md:w-12 h-12 rounded-full shadow-md"
                                 alt="profile-picture"
                                 src={
-                                    user?.pic && user.pic !== ""
-                                        ? user?.pic
+                                    u?.pic && u.pic !== ""
+                                        ? u?.pic
                                         : "/assets/profile_pictures/default-profile-pic.jpg"
                                 } />
                             <section className="mx-2 min-w-24 max-w-32">
@@ -39,7 +39,7 @@ function FindPeople() {
                                 )}
                             </section>
                         </div>
-                        <Buttons />
+                        <Buttons user={u}/>
                     </li>
                 )
                 )}

@@ -7,6 +7,7 @@ import { pathToFileURL } from "url"
 import userRoutes from './routes/userRoutes'
 import messageRoutes from './routes/messageRoutes'
 import chatRoutes from './routes/chatRoutes'
+import friendsRoutes from './routes/friendsRoutes'
 register("ts-node/esm", pathToFileURL('./'))
 
 const app = express()
@@ -29,6 +30,7 @@ app.use(cors($CorsConfig))
     app.use('/api/users', userRoutes)
     app.use('/api/chat', chatRoutes)
     app.use('/api/messages', messageRoutes)
+    app.use('/api/friends', friendsRoutes)
 // END ROUTES
 
 const PORT = process.env.PORT || 4000
