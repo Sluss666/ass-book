@@ -12,12 +12,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       } catch (err) {
         console.warn("Error parsing user data", err);
         localStorage.removeItem('userData');
+        localStorage.removeItem('token');
       }
     }
   }, []);
 
   const setAndStoreUser = (user: User) => {
     setUser(user);
+    console.log(`User logged and storaged: ${user}`)
     localStorage.setItem('userData', JSON.stringify(user));
   }
 

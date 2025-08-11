@@ -1,28 +1,56 @@
 import { HiOutlineChatBubbleOvalLeft } from "react-icons/hi2";
-import type { MouseEvent } from "react";
+import { type MouseEvent } from "react";
 import type { User } from "../../../types/User";
+import { useFriends } from "../../../context/friends/useFriends";
+import { useResponse } from "../../../context/res/useResponse";
 interface ButtonProps {
-  user: User;
+  userOf: User;
+  reqSent: boolean;
+  setReqSent: React.Dispatch<React.SetStateAction<boolean>>;
+  stay: boolean;
+  setStay: React.Dispatch<React.SetStateAction<boolean>>;
 }
-function Buttons({ user }: ButtonProps) {
-  const sendRequest = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.dataset.id;
-    console.log(id);
+function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
+  const { sendRequest } = useFriends();
+  const { setResponse } = useResponse()
+  const sendFriendRequest = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!stay || reqSent) return;
+    try {
+      const userToId = userOf._id;
+      if (!userToId) {
+        setResponse({msg:'Error ocurred. Try again later', error:true})
+        return;
+      }
+      const res = await sendRequest({ _id: userToId });
+      if (!res || res.data == undefined) {
+        console.error("Error sending request");
+        setResponse({msg:'Error ocurred sending request. Try again', error:true})
+        return;
+      }
+      if (res.error) {
+        console.error(`Error sending request: ${res.error}`);
+        setResponse({msg:res.msg, error:true})
+        return;
+      }
+      setReqSent(true);
+      setTimeout(() => setStay(false), 2000);
+    } catch (e) {
+      console.log(`Error sending friend request: ${e}`);
+    }
   };
   return (
     <div className="grid gap-2">
       <button
         type="button"
-        data-id={`${user._id}`}
-        onClick={(e) => sendRequest(e)}
+        onClick={(e) => sendFriendRequest(e)}
         id="send-friend-request"
-        className="px-3 h-8 rounded-full text-sm bg-white font-semibold "
+        className="px-3 h-8 rounded-full text-sm bg-white font-semibold  hover:bg-white/50 active:bg-white/90"
       >
         Add&nbsp;Friend
       </button>
       <button
         type="button"
-        data-id={`${user._id}`}
         id="start-chat"
         className="px-3 h-8 rounded-full text-sm bg-black font-semibold 
                         text-white flex justify-center items-center gap-2"

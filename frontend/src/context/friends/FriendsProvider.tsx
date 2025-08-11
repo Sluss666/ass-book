@@ -2,22 +2,28 @@ import { useEffect, useState } from 'react'
 import {FriendsContext} from './FriendsContext'
 import type { FShip } from '../../types/Friendships';
 import api from '../../conf/api';
+import type { Request, SendRequestResponse } from './FriendsContext';
 import { useUser } from '../useUser';
-import type { Request } from './FriendsContext';
 export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
-    const { user } = useUser()
     const [ isLoading, setIsLoading ] = useState(true)
     const [ friends, setFriends] = useState<FShip[]>([])
-
+    const { user } = useUser()
     const fetchFriends = async()=>{
         try{
             setIsLoading(true)
+
             const token = localStorage.getItem('token')
-            const res = await api.get<FShip[]>(`friends/fetch/_id:${user?._id}`, {
+            console.log('Inside fetch', user)
+            if(!user){
+                console.error(`user not found or undefined: ${user}`)
+                return 
+            }
+            const res = await api.get<FShip[]>(`friends/fetch/_id:${user._id}`, {
                 headers:{
                     Authorization:`Bearer ${token}`
                 }
             })
+            console.log(`People has found: ${res.data}`)
             setFriends(res.data)
         } catch(error){
          console.error('Error fetching friends:', error)
@@ -26,22 +32,24 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
             setIsLoading(false)
         }
     }
-    const sendRequest = async({_id}:Request):Promise<string | null>=>{
+    const sendRequest = async({_id}:Request):Promise<SendRequestResponse>=>{
         try {
             setIsLoading(true)
-
+            if(!user){
+                return {msg:'Error ocurred', error:true}
+            }
             const token = localStorage.getItem('token')
-            const { data } = await api.get(`friends/send-request/id_from:${user?._id}/${_id}`, 
+            const { data } = await api.get(`friends/send-request/id_from:${user._id}/to_user:${_id}`, 
                 {
                     headers:{
                         Authorization: `Bearer ${token} `
                     }
                 }
             )
-            return data.msg
+            return data
         } catch (error) {
             console.error('Error sending request:', error)
-            return 'Error sending friend request'
+            return {msg:'Error sending friend request'}
         } finally {
             setIsLoading(false)
         }
@@ -50,8 +58,9 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
 
     }
     useEffect(()=>{
+        if(!user) return
         fetchFriends()
-    }, [])
+    }, [user])
     return (
         <FriendsContext.Provider value={{isLoading, friends, fetchFriends, requestResponse, sendRequest}}>
             {children}
