@@ -40,7 +40,7 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
     }
   };
   return (
-    <div className="grid gap-2">
+    <div className="grid my-auto gap-2">
       <button
         type="button"
         onClick={(e) => sendFriendRequest(e)}

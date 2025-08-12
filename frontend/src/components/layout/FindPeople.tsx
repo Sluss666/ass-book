@@ -18,7 +18,7 @@ function FindPeople() {
     return (
         <div className="w-fit fixed mt-24 h-full bg-black  border-r border-slate-600 overflow-y-auto" >
             <p className="text-center mt-5 mb-2  text-white  ">Find&nbsp;People</p>
-            <ul className="">
+            <ul className="grid items-center">
                 <People user={user} users={users}/>
             </ul>
         </div>
