@@ -77,13 +77,16 @@ const getMessages:RequestHandler = async(req, res)=>{
 
 const emptyChat:RequestHandler = async(req, res)=>{
     const { chat_id } = req.body
-    const messages = await Message.find({chat:chat_id}).lean()
-    if(!messages){
-        res.status(404).json({error:true, msg:`Chat already empty`})
-        return
-    }
+    
     try {
-        messages.forEach(async (message)=>{await message.deleteOne()})
+        const messages = await Message.find({chat:chat_id}).lean()
+        if(!messages){
+            res.status(404).json({error:true, msg:`Chat already empty`})
+            return
+        }
+        Promise.all(messages.map(m=>
+            m.deleteOne
+        ))
         res.status(200).json({error:false, msg:`It's empty now`})       
         return
     } catch (e) {
@@ -94,15 +97,23 @@ const emptyChat:RequestHandler = async(req, res)=>{
 }
 
 const deleteMessage:RequestHandler = async(req, res)=>{
-    const { _id, chat_id, message_id } = req.body
+    const { _id, chat_id, messages_id } = req.body
     const ownChat = await Chat.findOne({chat:chat_id,one:_id}).lean()
     if(!ownChat){
         res.status(404).json({error:true, msg:`Unexpected error ocurred`})
         return
     }
     try{
-        const message = await Message.findById(message_id).lean()
-        await message?.deleteOne()
+        const messages = await Message.find({
+            _id:{
+                $in:messages_id
+            }
+        }).lean()
+        if(!messages.length || messages === null){
+            res.status(404).json({msg:'Start writing a message'})
+            return
+        }
+        const messagesId = messages.map(m=>m._id)
         res.status(200).json({error:false, msg:`Message deleted`})
     } catch(e){
         console.warn(`Error Deleting Message: ${e}`)
@@ -120,8 +131,8 @@ const editMessage:RequestHandler = async(req, res)=>{
         res.status(404).json({error:true, msg:`Unexpected error ocurred`})
         return
     }
-    const message = await Message.findById(message_id).lean()
-    const mirrorMessage = await Message.findById(mirrormessage_id).lean()
+    const message = await Message.findById(message_id)
+    const mirrorMessage = await Message.findById(mirrormessage_id)
     if(!message || !mirrorMessage){
         res.status(401).json({error:true, msg:`Unavailable to edit`})
         return

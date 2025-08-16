@@ -5,3 +5,18 @@
 * {
     margin: 0;
 }
+
+/* Para Chrome, Edge y Safari */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Para Firefox */
+html {
+  scrollbar-width: none;
+}
+
+/* Asegurar que siga siendo desplazable */
+html, body {
+  overflow: auto; /* o overflow-y: scroll si quieres solo vertical */
+}

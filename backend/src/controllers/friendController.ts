@@ -9,16 +9,34 @@ import { Types } from "mongoose";
 
 const fetchFriends:RequestHandler = async(req, res)=>{
     try {
-        const { _id } = req.params;
-    const user = await User.findById(_id).lean();
-    if (!user) return res.status(404).json({ msg: 'User not found' });
-     const fships = await FriendShip.find({
-      $or: [{ of: user._id }, { with: user._id }]
-    }).populate('of with');
-        if(!fships || fships.length === 0) 
-            return res.status(404).json({msg:'No Friends'})
-        res.json(fships)
-        return
+      const { _id } = req.params;
+      const user = await User.findById(_id).lean();
+      if (!user) return res.status(404).json({ msg: 'User not found' });
+      const fships = await FriendShip.find({
+        $or: [{ of: user._id }, { with: user._id }]
+      }).lean();
+      if(!fships || fships.length === 0) 
+          return res.status(404).json({msg:'No Friends'})
+      const friendsIds = fships.map(f=> 
+        f.of.toString() === user._id.toString() ?
+        f.with.toString()
+        : f.of.toString()
+      )
+      const pending = await FriendRequest.find({
+        $or: [{from:user._id}, {to:user._id}]
+      }).lean()
+      const pendingIds = pending.map(p =>
+          p.from.toString() === user._id.toString() ?
+          p.to.toString()
+          : p.from.toString()
+      )
+      const notFriendsFilter = await User.find({
+        _id: {
+          $nin: [user._id.toString(), ...friendsIds, ...pendingIds]
+        }
+      }).lean()
+      res.json(notFriendsFilter)
+      return
     } catch(e) {
         console.warn(`Error fetching friends: ${e}`)
         return res.status(500).json({error:`Error fetching friends: ${e}`})
@@ -93,6 +111,7 @@ try {
 };
 
 
+
 const endFriendShip: RequestHandler = async (req, res) => {
   const { userEndsId, userTwo } = req.params;
   try {
@@ -119,11 +138,10 @@ const endFriendShip: RequestHandler = async (req, res) => {
   }
 };
 
-
 export {
-    fetchFriends,
-    fetchRequests,
-    friendRequest,
-    requestResponse,
-    endFriendShip
+  fetchFriends,
+  fetchRequests,
+  friendRequest,
+  requestResponse,
+  endFriendShip,
 }

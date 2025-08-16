@@ -9,9 +9,9 @@ import {
 } from '../controllers/friendController'
 
  const router = Router()
- router.route('/fetch/_id:string').get(checkAuth, fetchFriends)
+ router.route('/fetch/:_id').get(checkAuth, fetchFriends)
  router.route('/response-request').post(checkAuth, requestResponse)
- router.route('/fetch-requests/_id:string').get(checkAuth, fetchRequests)
- router.route('/unlist/userEndsId:string/userTwo:string').get(checkAuth, endFriendShip)
- router.route('/send-request/id_from:string/to_user:string').get(checkAuth, friendRequest)
+ router.route('/fetch-requests/:_id').get(checkAuth, fetchRequests)
+ router.route('/unlist/:user_ends/:user_two').get(checkAuth, endFriendShip)
+ router.route('/send-request/id_from/:id_from/to_user/:to_user').get(checkAuth, friendRequest)
  export default router
