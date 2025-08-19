@@ -62,11 +62,13 @@ const fetchRequests:RequestHandler = async(req, res)=>{
 const friendRequest:RequestHandler = async(req, res)=>{
     const { id_from, to_user } = req.params
     try {
-        const fromUser = await User.findById(id_from).lean();
-    const toUser = await User.findOne({ user: to_user }).lean();
+        const fromUser = await User.findById(id_from);
+        const toUser = await User.findById(to_user);
 
-    if (!fromUser || !toUser)
-      return res.status(404).json({ msg: 'Users not found', error: true });
+    if (!fromUser || !toUser){
+        res.status(404).json({ msg: 'Users not found', error: true });
+      return 
+    }
 
     const newRequest = new FriendRequest({
       from: fromUser._id,

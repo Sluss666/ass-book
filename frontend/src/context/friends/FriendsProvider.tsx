@@ -39,7 +39,7 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
                 return {msg:'Error ocurred', error:true}
             }
             const token = localStorage.getItem('token')
-            const { data } = await api.get(`friends/send-request/id_from:${user._id}/to_user:${_id}`, 
+            const { data } = await api.get(`friends/send-request/${user._id}/${_id}`, 
                 {
                     headers:{
                         Authorization: `Bearer ${token} `
