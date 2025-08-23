@@ -2,16 +2,23 @@ import { useEffect, useState } from "react"
 import { type User } from "../../types/User"
 import api from "../../conf/api"
 import { UsersContext } from "./UsersContext"
+import { useUser } from "../useUser"
 export const UsersProvider = ({ children }: { children: React.ReactNode }) => {
-
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
+  const {user}=useUser()
+  
   const fetchUsers = async () => {
+    
     try {
+    if(!user){
+      console.error('user is null or undefined:', user)
+      return
+    }
       setIsLoading(true)
       const token = localStorage.getItem('token')
-      const res = await api.get<User[]>('users/', {
+      console.log(`User ID: ${user._id}`)
+      const res = await api.get<User[]>(`users/${user._id}`, {
         headers: {
             Authorization:`Bearer ${token}`
         }
@@ -43,10 +50,9 @@ export const UsersProvider = ({ children }: { children: React.ReactNode }) => {
     setUsers(prev => prev.filter(u => u._id !== id))
   }
 
-  // Fetch users al montar
   useEffect(() => {
     fetchUsers()
-  }, [])
+  }, [user])
 
   return (
     <UsersContext.Provider value={{ users, isLoading, fetchUsers, addUser, updateUser, removeUser, blockUser }}>

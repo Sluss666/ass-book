@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { HiBell, HiChatBubbleLeftRight } from "react-icons/hi2";
+import { HiChatBubbleLeftRight } from "react-icons/hi2";
 import type { CardBody } from '../Body';
 import { useUser } from "../../../../context/useUser";
 import api from "../../../../conf/api";
 import Menu from "./Functions/Menu";
+import Notifications from "./Functions/Notifications";
 
 function Functions({ setIsLoading, setError, setText }: CardBody) {
     const { user, setUser } = useUser()
@@ -49,9 +50,9 @@ function Functions({ setIsLoading, setError, setText }: CardBody) {
     };
     return (
         <div className="hidden md:flex mx-auto items-center gap-2">
-            <motion.div whileTap={{ scale: 1.2 }}>
-                <HiBell className="cursor-pointer" size={35} />
-            </motion.div>
+            <div className="relative select-none">
+                <Notifications />
+            </div>
             <motion.div whileTap={{ scale: 1.2 }}>
                 <HiChatBubbleLeftRight className="cursor-pointer" size={35} />
             </motion.div>

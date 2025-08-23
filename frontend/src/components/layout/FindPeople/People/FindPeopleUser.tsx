@@ -17,10 +17,10 @@ const FindPeopleUser = ({ u }: { u: User }) => {
 
   return (
     stay && (
-      <li className="border-y border-slate-600 flex justify-evenly p-3 py-0 w-full h-24 bg-white/90 relative overflow-hidden">
+      <li className={`border-y border-slate-600 flex justify-evenly p-3 py-0 w-full h-24 ${reqSent ? 'bg-green-600':'bg-white/90'} relative overflow-hidden`}>
 
         {reqSent ? (
-          <div className="bg-green-600 w-full h-full flex items-center p-3">
+          <div className="bg-green-600 relative w-[100%] h-full flex items-center p-3">
             <p className="text-center text-white font-bold">Request Sent :D</p>
           </div>
         ) : (

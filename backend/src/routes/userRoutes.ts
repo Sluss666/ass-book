@@ -30,7 +30,7 @@ router.route('/verify').get(checkAuth,
     }
 )
 
-router.route('/').get(checkAuth, getUsers)
+router.route('/:_id').get(checkAuth, getUsers)
 
 router.route('/start')
     .put(signUpUser)

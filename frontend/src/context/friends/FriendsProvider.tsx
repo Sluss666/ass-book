@@ -18,13 +18,13 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
                 console.error(`user not found or undefined: ${user}`)
                 return 
             }
-            const res = await api.get<FShip[]>(`friends/fetch/_id:${user._id}`, {
+            const {data} = await api.get<FShip[]>(`friends/fetch/${user._id}`, {
                 headers:{
                     Authorization:`Bearer ${token}`
                 }
             })
-            console.log(`People has found: ${res.data}`)
-            setFriends(res.data)
+            console.log(`People has found: ${data}`)
+            setFriends(data)
         } catch(error){
          console.error('Error fetching friends:', error)
 
@@ -58,7 +58,6 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
 
     }
     useEffect(()=>{
-        if(!user) return
         fetchFriends()
     }, [user])
     return (

@@ -11,7 +11,7 @@ interface ButtonProps {
   setStay: React.Dispatch<React.SetStateAction<boolean>>;
 }
 function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
-  const { sendRequest } = useFriends();
+  const { sendRequest } = useFriends()
   const { setResponse } = useResponse()
   const sendFriendRequest = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
         return;
       }
       const res = await sendRequest({ _id: userToId });
-      if (!res || res.data == undefined) {
+      if (!res) {
         console.error("Error sending request");
         setResponse({msg:'Error ocurred sending request. Try again', error:true})
         return;
@@ -36,9 +36,25 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
       setReqSent(true);
       setTimeout(() => setStay(false), 2000);
     } catch (e) {
-      console.log(`Error sending friend request: ${e}`);
+      console.log(`Error sending friend request: ${e}`)
+      setResponse({msg:'Error ocurred sending request. Try again', error:true})
     }
   };
+  const startChat = ()=> {
+    if(!stay || reqSent) return
+    try {
+      const userToId = userOf._id
+      if(!userToId){
+        setResponse({msg:'Error ocurred. Try again later', error:true})
+        return
+      }
+      
+    } catch(e){
+      console.log(`Error starting chat: ${e}`)
+      setResponse({msg:'Error ocurred. Try again', error:true})
+    }
+  }
+    
   return (
     <div className="grid my-auto gap-2">
       <button

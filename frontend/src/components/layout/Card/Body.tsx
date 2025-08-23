@@ -20,7 +20,7 @@ function Body({ setIsLoading, setError, setText }: CardBody) {
   return (
     <>
       <div className="pl-2">
-        <Link to={"self"} className="block mt-1 select-text">
+        <Link reloadDocument to={"self"} className="block mt-1 select-text">
           <strong>{user?.user || "NoUser"}</strong>
         </Link>
         {!isPage(["index", "self"]) && (

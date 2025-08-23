@@ -86,25 +86,21 @@ const friendRequest:RequestHandler = async(req, res)=>{
 const requestResponse:RequestHandler = async(req, res)=>{
 try {
     const { responseUserId, userSend, state } = req.body;
-
     const friendRequest = await FriendRequest.findOne({
       from: new Types.ObjectId(userSend as string),
       to: new Types.ObjectId(responseUserId as string)
     });
-
     if (!friendRequest)
       return res.status(404).json({ error: true, msg: 'Request not found' });
-
     friendRequest.state = state;
     await friendRequest.save();
-
-    if (state === 'accepted') {
+    if (state === 'accepted') 
       await FriendShip.create({
         of: new Types.ObjectId(userSend as string),
         with: new Types.ObjectId(responseUserId as string)
-      });
-    }
-
+      })
+    else if(state === 'declined')
+      await friendRequest.deleteOne()
     res.status(200).json({ error: false, msg: `Friendship request ${state}` });
   } catch (e) {
     console.error('Error processing friend request response', e);

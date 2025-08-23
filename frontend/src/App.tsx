@@ -9,6 +9,7 @@ import { UserProvider } from './context/UserProvider'
 import { UsersProvider } from './context/users/UsersProvider'
 import { FriendsProvider } from './context/friends/FriendsProvider'
 import { ResponseProvider } from './context/res/ResponseProvider'
+import { NotificationsProvider } from './context/notifications/NotificationsProvider'
 
 function App() {
 
@@ -18,17 +19,19 @@ function App() {
         <UsersProvider>
           <FriendsProvider>
             <ResponseProvider>
-              <Routes>
-                <Route path='/' element={<PublicRoutes><LayoutWrapper /></PublicRoutes>}>
-                  <Route index element={<Login/>}/>
-                  <Route path='sign-up' element={<Register />}/>
-                </Route>
-                <Route path='/index' element={<ProtectedRoutes rols={['user']}><Layout /></ProtectedRoutes>}>
-                  <Route index element={<></>}/>
-                  <Route path='people' element={<></>}/>
-                  <Route path='self' element={<></>}/>
-                </Route>
-              </Routes>
+              <NotificationsProvider>
+                <Routes>
+                  <Route path='/' element={<PublicRoutes><LayoutWrapper /></PublicRoutes>}>
+                    <Route index element={<Login/>}/>
+                    <Route path='sign-up' element={<Register />}/>
+                  </Route>
+                  <Route path='/index' element={<ProtectedRoutes rols={['user']}><Layout /></ProtectedRoutes>}>
+                    <Route index element={<></>}/>
+                    <Route path='people' element={<></>}/>
+                    <Route path='self' element={<></>}/>
+                  </Route>
+                </Routes>
+              </NotificationsProvider>
             </ResponseProvider> 
           </FriendsProvider>
         </UsersProvider>

@@ -5,20 +5,58 @@ import sendSMS from '../helpers/sms'
 import { hashPassword, comparePassword } from '../helpers/passwordHasher'
 import WebToken from '../helpers/generateJWT'
 import { UserITFace } from '../models/User';
+import mongoose from 'mongoose'
+import FriendRequest from '../models/FriendRequest'
+import FriendShip from '../models/FriendShip'
 
 interface AuthRequest extends Request {
     user: UserITFace
 }
 
-const getUsers:RequestHandler = async(req, res)=>{
-    try{
-        const Users = await User.find()
-        res.json(Users)
-    } catch (error) {
-        console.error("Error fetching users:", error)
-        res.status(500).json({ error: "Server error" })
+const getUsers: RequestHandler = async (req, res) => {
+  try {
+    const { _id } = req.params; // o req.user._id si usas JWT
+
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      return res.status(400).json({ error: "Invalid user ID" });
     }
-}
+
+    const user = await User.findById(_id).lean();
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    // 1. Buscar amistades
+    const friendships = await FriendShip.find({
+      $or: [{ of: user._id }, { with: user._id }]
+    }).lean();
+
+    const friendIds = friendships.map(f =>
+      f.of.toString() === user._id.toString()
+        ? f.with.toString()
+        : f.of.toString()
+    );
+
+    // 2. Buscar solicitudes pendientes (enviadas o recibidas)
+    const pending = await FriendRequest.find({
+      $or: [{ from: user._id }, { to: user._id }]
+    }).lean();
+
+    const pendingIds = pending.map(p =>
+      p.from.toString() === user._id.toString()
+        ? p.to.toString()
+        : p.from.toString()
+    );
+
+    // 3. Usuarios que no son amigos ni tienen solicitudes pendientes
+    const notFriends = await User.find({
+      _id: { $nin: [user._id.toString(), ...friendIds, ...pendingIds] }
+    }).lean();
+
+    return res.json(notFriends);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
 
 const signUpUser:RequestHandler = async(req, res)=>{
     const { username, password, cpassword } = req.body
