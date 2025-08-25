@@ -1,9 +1,12 @@
-import { createContext } from "react"
+import { createContext } from "react";
+import type { Props } from "./ChatsProvider";
 
 export interface ChatsContext {
-  newChat:()=>void
-  openChat:()=>void
-  setChat(number:number):()=>void
+  newChat: (userToId:string) => void;
+  openChat: (chatId:string) => void;
+  setChat: (chat: Props)  => void;
 }
 
-export const ChatContext = createContext<ChatsContext|undefined>(undefined)
+export const ChatContext = createContext<ChatsContext | undefined>(undefined);
+
+

@@ -3,6 +3,7 @@ import { type MouseEvent } from "react";
 import type { User } from "../../../types/User";
 import { useFriends } from "../../../context/friends/useFriends";
 import { useResponse } from "../../../context/res/useResponse";
+import { useChats } from "../../../context/chats/useChats";
 interface ButtonProps {
   userOf: User;
   reqSent: boolean;
@@ -13,6 +14,7 @@ interface ButtonProps {
 function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
   const { sendRequest } = useFriends()
   const { setResponse } = useResponse()
+  const {newChat}=useChats()
   const sendFriendRequest = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!stay || reqSent) return;
@@ -40,7 +42,7 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
       setResponse({msg:'Error ocurred sending request. Try again', error:true})
     }
   };
-  const startChat = ()=> {
+  const startChat = async (e: MouseEvent<HTMLButtonElement>)=> {
     if(!stay || reqSent) return
     try {
       const userToId = userOf._id
@@ -48,7 +50,7 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
         setResponse({msg:'Error ocurred. Try again later', error:true})
         return
       }
-      
+      newChat(userToId)
     } catch(e){
       console.log(`Error starting chat: ${e}`)
       setResponse({msg:'Error ocurred. Try again', error:true})
@@ -68,6 +70,7 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
       <button
         type="button"
         id="start-chat"
+        data-user-id={userOf._id}
         className="px-3 h-8 rounded-full text-sm bg-black font-semibold 
                         text-white flex justify-center items-center gap-2"
       >

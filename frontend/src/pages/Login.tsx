@@ -7,12 +7,13 @@ import Warn from '../components/warns/CommonWarn'
 import api from '../conf/api'
 import type { AxiosError } from 'axios'
 import { useUser } from '../context/useUser'
-
+import { useSocket } from '../context/sockets/useSocket'
+import { useNavigate } from 'react-router-dom'
 
 const Login = ()=>{
-
+    const navigate = useNavigate()
+    const socket = useSocket()
     const { setUser } = useUser()
-
     const UsernameProps : InputProps =
         {id:'username', type:'text', label:'Username:', placeholder:'Put your username'}
     const PasswordProps : InputProps =
@@ -59,8 +60,9 @@ const Login = ()=>{
             }
             setUser(userData)
             setTimeout(()=>{
+                socket?.emit("register", data.user._id)
                 setStatus('success');setText(data.msg)
-                setTimeout(()=>{window.location.reload()}, 500)
+                setTimeout(()=>{navigate("/index")}, 500)
             }, 500)
             
             return

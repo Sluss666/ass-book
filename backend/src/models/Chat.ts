@@ -1,4 +1,5 @@
-import {model, Schema, Types, Document} from 'mongoose'
+import {model, Schema, Types, Document, Model} from 'mongoose'
+import { type MessageITFace } from './Message'
 export interface ChatITFace extends Document {
     _id:Types.ObjectId
     one:Types.ObjectId
@@ -7,6 +8,7 @@ export interface ChatITFace extends Document {
     new_message:boolean
     createdAt?: Date
     updatedAt?: Date
+    messages:MessageITFace[][]
 }
 const $Schema = new Schema<ChatITFace>(
     {
@@ -25,11 +27,13 @@ const $Schema = new Schema<ChatITFace>(
         new_message:{
             default:true,
             type:Boolean
-        }
+        },
+        
+        messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
     },
     {
         timestamps:true
     }
 )
-const Chat = model<ChatITFace>('Chat', $Schema)
+const Chat:Model<ChatITFace> = model<ChatITFace>('Chat', $Schema)
 export default Chat

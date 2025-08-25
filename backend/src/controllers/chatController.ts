@@ -3,8 +3,8 @@ import Chat from "../models/Chat"
 import User from "../models/User"
 
 const startChat:RequestHandler = async(req, res)=>{
-    const { _id, user } = req.body
-    const startedWithUser = await User.findOne({user}).lean()
+    const { _id, user_with_id } = req.body
+    const startedWithUser = await User.findById(user_with_id)
     if(!startedWithUser){
         res.status(404).json({error:true, msg:`Unexcepted Error has ocurred`})
         return
@@ -22,9 +22,9 @@ const startChat:RequestHandler = async(req, res)=>{
     }
 }
 const existsChat:RequestHandler = async(req, res)=>{
-    const { _id, two } = req.params
+    const { _id, two_id } = req.params
 
-    const secondUser = await User.findOne({user:two})// User who 'user' has a chat with
+    const secondUser = await User.findOne({user:two_id})// User who 'user' has a chat with
     if(!secondUser){
         res.status(404).json({error:true, msg:`Unexpected Error ocurred`})
         return

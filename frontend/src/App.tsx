@@ -10,6 +10,8 @@ import { UsersProvider } from './context/users/UsersProvider'
 import { FriendsProvider } from './context/friends/FriendsProvider'
 import { ResponseProvider } from './context/res/ResponseProvider'
 import { NotificationsProvider } from './context/notifications/NotificationsProvider'
+import { SocketProvider } from './context/sockets/SocketProvider'
+import { ChatsProvider } from './context/chats/ChatsProvider'
 
 function App() {
 
@@ -20,17 +22,21 @@ function App() {
           <FriendsProvider>
             <ResponseProvider>
               <NotificationsProvider>
-                <Routes>
-                  <Route path='/' element={<PublicRoutes><LayoutWrapper /></PublicRoutes>}>
-                    <Route index element={<Login/>}/>
-                    <Route path='sign-up' element={<Register />}/>
-                  </Route>
-                  <Route path='/index' element={<ProtectedRoutes rols={['user']}><Layout /></ProtectedRoutes>}>
-                    <Route index element={<></>}/>
-                    <Route path='people' element={<></>}/>
-                    <Route path='self' element={<></>}/>
-                  </Route>
-                </Routes>
+                <SocketProvider>
+                  <ChatsProvider>
+                    <Routes>
+                      <Route path='/' element={<PublicRoutes><LayoutWrapper /></PublicRoutes>}>
+                        <Route index element={<Login/>}/>
+                        <Route path='sign-up' element={<Register />}/>
+                      </Route>
+                      <Route path='/index' element={<ProtectedRoutes rols={['user']}><Layout /></ProtectedRoutes>}>
+                        <Route index element={<></>}/>
+                        <Route path='people' element={<></>}/>
+                        <Route path='self' element={<></>}/>
+                      </Route>
+                    </Routes>
+                  </ChatsProvider>
+                </SocketProvider>
               </NotificationsProvider>
             </ResponseProvider> 
           </FriendsProvider>
