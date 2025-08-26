@@ -23,7 +23,7 @@ export const ChatsProvider: React.FC<ChatProviderProps> = ({ children }) => {
     try {
       const token = localStorage.getItem("token");
       const { data } = await api.post(
-        "chats/",
+        "chats/chat",
         {
           _id: user?._id,
           user_with_id: userToId,
@@ -41,6 +41,8 @@ export const ChatsProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setCurrentChat({ chat_id: data.chat_id, mirror_id: data.mirror_id });
     } catch (e) {
       console.error(`Error iniciando un nuevo chat: ${e}`);
+      setResponse({ msg: `Can't talk to this person in this moment.
+        \nTry again later`, error: true });
     }
   };
 
@@ -48,14 +50,14 @@ export const ChatsProvider: React.FC<ChatProviderProps> = ({ children }) => {
     console.log("Abrir chat existente");
     try {
       const token = localStorage.getItem("token");
-      const { data } = await api.get(`chat/${chatId}`, {
+      const { data } = await api.get(`chats/chat/${chatId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (data.error || !data.found) {
-        setResponse({ msg: "Error occurred, please try again", error: true });
-        return;
+        setResponse({ msg: "Error occurred. \n Please try again later.", error: true });
+        return
       }
       // Aquí puedes hacer setCurrentChat si deseas abrir o mostrar el chat
       setCurrentChat({ chat_id: data.chat_id, mirror_id: data.mirror_id });

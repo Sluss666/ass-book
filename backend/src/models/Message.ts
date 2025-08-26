@@ -2,6 +2,7 @@ import { model, Schema, Types, Document } from 'mongoose'
 export interface MessageITFace extends Document {
     _id:Types.ObjectId
     chat:Types.ObjectId
+    mirror_chat:Types.ObjectId
     from:Types.ObjectId
     to:Types.ObjectId
     message:string
@@ -16,6 +17,11 @@ const $Schema = new Schema<MessageITFace>(
         chat:{
             type:Schema.Types.ObjectId,
             ref:'Chat',
+            required:true
+        },
+        mirror_chat:{
+            type:Schema.Types.ObjectId,
+            ref:'MirrorChat',
             required:true
         },
         from:{

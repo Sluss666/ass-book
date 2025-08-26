@@ -176,7 +176,7 @@ app.use(express.json());
 
 // START ROUTES
 app.use("/api/users", userRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/chats", chatRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/friends", friendsRoutes);
 // END ROUTES

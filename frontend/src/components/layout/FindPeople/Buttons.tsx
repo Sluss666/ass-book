@@ -4,6 +4,7 @@ import type { User } from "../../../types/User";
 import { useFriends } from "../../../context/friends/useFriends";
 import { useResponse } from "../../../context/res/useResponse";
 import { useChats } from "../../../context/chats/useChats";
+
 interface ButtonProps {
   userOf: User;
   reqSent: boolean;
@@ -42,8 +43,11 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
       setResponse({msg:'Error ocurred sending request. Try again', error:true})
     }
   };
-  const startChat = async (e: MouseEvent<HTMLButtonElement>)=> {
-    if(!stay || reqSent) return
+  const startChat = async ()=> {
+    if(!stay || reqSent) {
+      setResponse({msg:'Error ocurred. Try again later', error:true})
+      return
+    }
     try {
       const userToId = userOf._id
       if(!userToId){
@@ -54,10 +58,12 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
     } catch(e){
       console.log(`Error starting chat: ${e}`)
       setResponse({msg:'Error ocurred. Try again', error:true})
+      return
     }
   }
     
   return (
+    <>
     <div className="grid my-auto gap-2">
       <button
         type="button"
@@ -70,13 +76,14 @@ function Buttons({ userOf, reqSent, setReqSent, stay, setStay }: ButtonProps) {
       <button
         type="button"
         id="start-chat"
-        data-user-id={userOf._id}
+        onClick={startChat}
         className="px-3 h-8 rounded-full text-sm bg-black font-semibold 
                         text-white flex justify-center items-center gap-2"
       >
         Talk <HiOutlineChatBubbleOvalLeft fontSize={24} />
       </button>
     </div>
+    </>
   );
 }
 
