@@ -32,6 +32,7 @@ const io = new Server(server, { cors: { origin: "*" } });
 const onlineUsers: Map<string, string> = new Map(); // userId -> socketId
 const usersInChats: Map<string, Set<string>> = new Map(); // chatId -> Set de userIds
 
+//Socket para actualizaciones en tiempo real
 io.on("connection", (socket: Socket) => {
   console.log("✅ Usuario conectado:", socket.id);
 
