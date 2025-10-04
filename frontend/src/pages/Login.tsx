@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useInput, { type InputProps} from '../hooks/useInput'
 import useNav from '../hooks/useNav'
 import { MoonLoader } from 'react-spinners'
@@ -18,7 +18,12 @@ const Login = ()=>{
         {id:'username', type:'text', label:'Username:', placeholder:'Put your username'}
     const PasswordProps : InputProps =
         {id:'pass-log', type:'password', label:'Password:', placeholder:'Pull your pass'}
-
+    useEffect(()=>{ 
+        document.addEventListener('DOMContentLoaded', ()=>{
+            const token = localStorage.getItem('token')
+            if(token) navigate('/index')
+        })
+    }, [])
     const [ username ,UsernameInput] = useInput(UsernameProps)
     const [ password ,PasswordInput] = useInput(PasswordProps)
 

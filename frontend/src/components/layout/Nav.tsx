@@ -7,7 +7,7 @@ const Nav = () => {
   return (
     <ul className="w-1/4 md:w-2/4 -right-48 md:-right-[0%] relative flex gap-4 bottom-8 -mb-10 justify-end text-white">
           <li>
-            <Link id="people-link" to={"people"}>
+            <Link  reloadDocument id="people-link" to={"people"}>
               <HiMiniUsers
                 className="hover:text-slate-200"
                 size={location.pathname.split("/")[2] == "people" ? 46 : 40}
@@ -20,7 +20,7 @@ const Nav = () => {
             </Link>
           </li>
           <li>
-            <Link id="index-link" to={"/index"} className="grid">
+            <Link reloadDocument id="index-link" to={"/index"} className="grid">
               <HiHome
                 className="hover:text-slate-200"
                 size={

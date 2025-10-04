@@ -29,7 +29,7 @@ const $Schema = new Schema<ChatITFace>(
             type:Boolean
         },
         
-        messages: [{ type: Schema.Types.ObjectId, ref: "Message" }],
+        messages: [[{ type: Schema.Types.ObjectId, ref: "Message" }]],
     },
     {
         timestamps:true

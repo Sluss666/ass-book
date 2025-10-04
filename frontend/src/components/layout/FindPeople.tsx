@@ -21,7 +21,8 @@ function FindPeople() {
             border-r border-slate-600 flex flex-col" >
                 <p className="text-center mt-5 mb-2  text-white  ">Find&nbsp;People</p>
                 <ul className="h-full flex-1 items-center overflow-auto">
-                    <People user={user} users={users}/>
+                    {users.length ? <People user={user} users={users}/> : 
+                    <p className="text-center text-white">No&nbsp;Users&nbsp;Found</p>}
                 </ul>
             </div>
         </div>

@@ -9,6 +9,17 @@ const startChat:RequestHandler = async(req, res)=>{
         res.status(404).json({error:true, msg:`Unexcepted Error has ocurred`})
         return
     }
+    const alreadyCreated = await Chat.find({
+        $or: [
+            {one:_id, two:startedWithUser._id},
+            {one:startedWithUser._id, two:_id}
+        ]
+    }).lean()
+    if(alreadyCreated.length > 0){
+        console.warn(`Lean Error Starting Chat: Already created ${alreadyCreated}`)
+        res.status(400).json({error:true, msg:`This chat already exists.`})
+        return
+    }
     try {
         const chat = new Chat({one:_id, two:startedWithUser._id})
         await chat.save()
@@ -16,7 +27,7 @@ const startChat:RequestHandler = async(req, res)=>{
         mirrorChat.save()
         res.status(200).json({error:false, chat_id:chat._id, mirror_id:mirrorChat._id})
     }catch(e){
-        console.warn(`Error Starting Chat: ${e}`)
+        console.warn(`Catch Error Starting Chat: ${e}`)
         res.status(500).json({error:true, msg:`Unexpected Error has ocurred`})
         return
     }
@@ -30,7 +41,7 @@ const existsChat:RequestHandler = async(req, res)=>{
         return
     }
 
-    const chat = await Chat.findOne({one:_id,two:secondUser._id}).lean()
+    const chat = await Chat.findOne({one:_id,two:secondUser._id})
     const mirrorChat = await Chat.findOne({one:secondUser._id})
     if(!chat || !mirrorChat){
         res.status(404).json({found:false})

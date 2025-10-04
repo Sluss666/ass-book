@@ -4,7 +4,7 @@ const useNav = (href = '/', hrefText='Default', submitText='Default')=>{
     const Nav = ()=>(
     <>
         <div className="md:w-1/2 text-center grid mx-auto mb-3">
-            <Link  to={href} className="font-bold md:font-normal underline hover:no-underline">
+            <Link  reloadDocument to={href} className="font-bold md:font-normal underline hover:no-underline">
                 {hrefText}
             </Link>
         </div>

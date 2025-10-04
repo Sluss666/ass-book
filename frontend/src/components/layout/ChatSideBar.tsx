@@ -1,23 +1,21 @@
 import { useState } from 'react'
+import { useFriends } from '../../context/friends/useFriends'
 
 const ChatSideBar = () => {
     
-const friends = [
-  { id: 1, name: "Ana Ruiz", online: true },
-  { id: 2, name: "Carlos Pérez", online: false },
-  { id: 3, name: "Lucía Gómez", online: true },
-]
-const [activeChat, setActiveChat] = useState<number | null>(null)
+const {friends} = useFriends()
+console.log('Amigos: ',friends)
+const [activeChat, setActiveChat] = useState('')
   return (
     <section className="fixed right-0 top-[105px] h-[calc(100vh-105px)] w-64 bg-white border-l border-gray-300 shadow-md p-2 overflow-y-auto z-10">
         <h2 className="text-xl font-semibold mb-2">Chats</h2>
         <ul className="space-y-1">
           {friends.map((friend) => (
             <li
-              key={friend.id}
-              onClick={() => setActiveChat(friend.id)}
+              key={friend._id}
+              onClick={() => setActiveChat(friend._id)}
               className={`p-2 rounded cursor-pointer flex items-center gap-2 hover:bg-gray-100 transition-all duration-150 ${
-                activeChat === friend.id ? "bg-blue-100" : ""
+                activeChat === friend._id ? "bg-blue-100" : ""
               }`}
             >
               <span
@@ -25,7 +23,9 @@ const [activeChat, setActiveChat] = useState<number | null>(null)
                   friend.online ? "bg-green-500" : "bg-gray-400"
                 }`}
               ></span>
-              <span>{friend.name}</span>
+              <span>
+                {friend.user}
+              </span>
             </li>
           ))}
         </ul>
@@ -36,10 +36,11 @@ const [activeChat, setActiveChat] = useState<number | null>(null)
             <div className="bg-white border rounded-lg shadow-md flex flex-col h-72 ">
               <div className="flex justify-between items-center px-3 py-2 border-b bg-slate-800 rounded-t">
                 <span className="font-semibold text-white text-sm">
-                  {friends.find((f) => f.id === activeChat)?.name}
+                  { // friends.find((f) => f._id === activeChat)?.name
+                  }
                 </span>
                 <button
-                  onClick={() => setActiveChat(null)}
+                  onClick={() => setActiveChat('')}
                   className="text-red-500 text-sm font-semibold"
                 >
                   ✕

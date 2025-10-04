@@ -5,7 +5,7 @@ import type { User } from "../../../../types/User";
 import RemoveButton from "./RemoveButton";
 import Info from './Info'
 
-const FindPeopleUser = ({ u }: { u: User }) => {
+const FindPeopleUser = ({ u, users}: { u: User, users:User[] }) => {
   const [reqSent, setReqSent] = useState(false);
   const [stay, setStay] = useState(true);
   const [closing, setClosing] = useState(false);

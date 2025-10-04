@@ -12,9 +12,7 @@ const Layout = () => {
   return (
     <div className="w-screen h-screen m-0">
       {(response.error != undefined && response.msg !== '') && (
-        <Alert>
-          {response.msg}
-        </Alert>
+        <Alert text={response.msg}/>          
       )}
       <nav className="fixed w-screen min-h-[105px] bg-black p-4 z-50 border-b border-slate-200">
         <SearchBar />

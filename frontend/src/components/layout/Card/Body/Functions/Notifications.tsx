@@ -22,15 +22,15 @@ const Notifications = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
               className="relative top-3 right-20 w-[14%] mt-2 bg-slate-200 rounded-md 
-                                                    shadow-md border border-gray-400/20 z-100 overflow-hidden rounded-b-[22px] pb-[0.5%]"
-            >
+          shadow-md border border-gray-400/20 z-100 overflow-hidden rounded-b-[22px] pb-[0.5%]"
+              >
               <div className="my-1">
                 <p className="font-bold text-center">Notifications</p>
               </div>
-              {friendsRequests.length > 0 ? (
+              {friendsRequests.length > 0 && friendsRequests.find(request => request.state == 'pending') ? (
                 <>
-                  {friendsRequests.map(request=>(                    
-                      <FriendRequest key={request._id} request={request}/>
+                  {friendsRequests.map(request=>(    
+                       <FriendRequest key={request._id} request={request}/>
                     ))
                   }
                 </>

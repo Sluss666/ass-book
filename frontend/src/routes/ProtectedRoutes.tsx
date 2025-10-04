@@ -13,8 +13,6 @@ export default function ProtectedRoutes({children, rols =[]}:Props) {
     const nav = useNavigate()
     useEffect(()=>{
         const checkAuth = async()=>{
-                
-
             const token = localStorage.getItem('token')
             if(!token || token == ''){
                 nav('/')
@@ -38,7 +36,7 @@ export default function ProtectedRoutes({children, rols =[]}:Props) {
                 setLoading(false)
             }
         }
-        setTimeout(()=>checkAuth(),2000)
+        setTimeout(()=>checkAuth(),700)
     }, [nav, rols])
     if (loading) return (
         <div className="h-screen w-screen bg-white grid items-center justify-center">

@@ -22,20 +22,8 @@ const fetchFriends:RequestHandler = async(req, res)=>{
         f.with.toString()
         : f.of.toString()
       )
-      const pending = await FriendRequest.find({
-        $or: [{from:user._id}, {to:user._id}]
-      }).lean()
-      const pendingIds = pending.map(p =>
-          p.from.toString() === user._id.toString() ?
-          p.to.toString()
-          : p.from.toString()
-      )
-      const notFriendsFilter = await User.find({
-        _id: {
-          $nin: [user._id.toString(), ...friendsIds, ...pendingIds]
-        }
-      }).lean()
-      res.json(notFriendsFilter)
+      const friends = await User.find({ _id: { $in: friendsIds } }).lean();
+      res.json(friends)
       return
     } catch(e) {
         console.warn(`Error fetching friends: ${e}`)
@@ -92,13 +80,17 @@ try {
     });
     if (!friendRequest)
       return res.status(404).json({ error: true, msg: 'Request not found' });
+    if(friendRequest.state !== 'pending'){
+      return res.status(400).json({ error: true, msg: `Request already ${state}` });
+    }
     friendRequest.state = state;
     await friendRequest.save();
-    if (state === 'accepted') 
+    if (friendRequest.state === 'accepted'){
       await FriendShip.create({
         of: new Types.ObjectId(userSend as string),
         with: new Types.ObjectId(responseUserId as string)
       })
+      await friendRequest.deleteOne()}
     else if(state === 'declined')
       await friendRequest.deleteOne()
     res.status(200).json({ error: false, msg: `Friendship request ${state}` });

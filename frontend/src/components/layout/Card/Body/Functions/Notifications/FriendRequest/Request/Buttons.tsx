@@ -42,3 +42,7 @@ const Buttons = ({request, setRequestState}:{request:FRequest, setRequestState:R
   )
 }
 export default Buttons
+
+// About to complete this component and the others on this path
+// File: frontend/src/components/layout/Card/Body/Functions/Notifications/FriendRequest.tsx
+// --- a/file:///c%3A/Users/jdmap/Documents/GitHub
