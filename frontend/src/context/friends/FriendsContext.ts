@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { FShip } from "../../types/Friendships";
+import type { Friends } from "../../types/Friendships";
 export type SendRequestResponse = { 
      error?: string | boolean
      msg?:string
@@ -12,8 +12,9 @@ type Response = {
     requestId:string
     response?: 'ok' | 'decline'
 }
+
 export interface FSContext {
-    friends:FShip[]
+    friends:Friends[]
     fetchFriends:()=>Promise<void>
     sendRequest:({_id}:Request)=>Promise<SendRequestResponse>
     requestResponse:({requestId, response}:Response)=>Promise<void>

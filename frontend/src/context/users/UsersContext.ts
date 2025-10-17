@@ -4,6 +4,7 @@ import { type User } from '../../types/User'
 
 export interface UsersContextType {
   users: User[]
+  setUsers: React.Dispatch<React.SetStateAction<User[]>>
   isLoading: boolean
   fetchUsers: () => Promise<void>
   addUser: (user: Omit<User, 'id'>) => Promise<void>

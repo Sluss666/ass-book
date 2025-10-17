@@ -5,19 +5,24 @@ import type { User } from "../../../../types/User";
 import RemoveButton from "./RemoveButton";
 import Info from './Info'
 
-const FindPeopleUser = ({ u, users}: { u: User, users:User[] }) => {
+type Props = {
+ u: User
+ setUsers?: React.Dispatch<React.SetStateAction<User[]>>
+}
+const FindPeopleUser = ({ u, setUsers}: Props) => {
   const [reqSent, setReqSent] = useState(false);
   const [stay, setStay] = useState(true);
   const [closing, setClosing] = useState(false);
 
   const handleClose = () => {
+    setUsers?.(prev => prev?.filter(user => user._id !== u._id))
     setClosing(true);
     setTimeout(() => setStay(false), 900); // exit wait lapse
   };
 
   return (
     stay && (
-      <li className={`border-y border-slate-600 flex justify-evenly p-3 py-0 w-full h-24 ${reqSent ? 'bg-green-600':'bg-white/90'} relative overflow-hidden`}>
+      <li className={`find-people-user border-y border-slate-600 flex justify-evenly p-3 py-0 w-full h-24 ${reqSent ? 'bg-green-600':'bg-white/90'} relative overflow-hidden`}>
 
         {reqSent ? (
           <div className="bg-green-600 relative w-[100%] h-full flex items-center p-3">

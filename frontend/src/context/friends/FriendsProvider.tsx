@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import {FriendsContext} from './FriendsContext'
-import type { FShip } from '../../types/Friendships';
-import api from '../../conf/api';
-import type { Request, SendRequestResponse } from './FriendsContext';
-import { useUser } from '../useUser';
+import api from '../../conf/api'
+import type { Request, SendRequestResponse } from './FriendsContext'
+import type {Friends} from '../../types/Friendships'
+import { useUser } from '../useUser'
+
+
 export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
     const [ isLoading, setIsLoading ] = useState(true)
-    const [ friends, setFriends] = useState<FShip[]>([])
+    const [ friends, setFriends] = useState<Friends[]>([])
     const { user } = useUser()
     const fetchFriends = async()=>{
         try{
@@ -18,7 +20,7 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
                 console.error(`user not found or undefined: ${user}`)
                 return 
             }
-            const {data} = await api.get<FShip[]>(`friends/fetch/${user._id}`, {
+            const {data} = await api.get<Friends[]>(`friends/fetch/${user._id}`, {
                 headers:{
                     Authorization:`Bearer ${token}`
                 }
