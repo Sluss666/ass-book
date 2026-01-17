@@ -6,13 +6,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userData');
+
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
       } catch (err) {
         console.warn("Error parsing user data", err);
-        localStorage.removeItem('userData');
-        localStorage.removeItem('token');
+        localStorage.clear()
+        setUser(null)
       }
     }
   }, []);

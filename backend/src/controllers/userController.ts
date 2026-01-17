@@ -8,6 +8,8 @@ import { UserITFace } from '../models/User';
 import mongoose from 'mongoose'
 import FriendRequest from '../models/FriendRequest'
 import FriendShip from '../models/FriendShip'
+import { emitUserOnline, emitUserOffline } from "../lib/socket/socket.managers"
+
 
 interface AuthRequest extends Request {
     user: UserITFace
@@ -108,6 +110,7 @@ const loginUser:RequestHandler = async(req, res)=>{
         user.online = true
         await user.save()
         console.log(`User status updated: ${user.online ? 'online' : 'disconnected'}`)
+        emitUserOnline(String(user._id))
         res.status(200).json(
             {
                 error:false, 
@@ -281,6 +284,7 @@ const logoutSession:RequestHandler = async(req, res)=>{
         }
         user.online = false
         await user.save()
+        emitUserOffline(String(user._id))
         res.status(200).json({error:false, msg:"Successfully logged out"})
         return
     } catch(err) {

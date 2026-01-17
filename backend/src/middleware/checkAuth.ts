@@ -22,9 +22,13 @@ const checkAuth = async (req:AuthRequest, res:Response, next:NextFunction) =>{
         if (!secret) {
         throw new Error('Falta la variable de entorno SECRET_WORD')
         }
-
+        if(!auth.split(' ')[1] || auth.split(' ')[1] == '') {
+            req.user = null
+            next()
+        }   
         const token = auth.split(' ')[1]
         console.log('Token:', auth.split(' ')[1])
+        
         const decoded = jwt.verify(token, secret) as PayloadID
         req.user = await User.findById(decoded.id)
         next()

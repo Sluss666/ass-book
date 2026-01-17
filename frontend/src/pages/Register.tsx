@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useInput, { type InputProps } from '../hooks/useInput'
 import useNav from '../hooks/useNav'
 import api from '../conf/api'
@@ -7,7 +7,9 @@ import CommonWarn from '../components/warns/CommonWarn'
 import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 const Register = () => {
+
   const nav = useNavigate()
+
   const UsernameProps : InputProps = 
     {id:'username', type:'text', label:'Username:', placeholder:'Create your username'} 
   const PasswordProps : InputProps = 

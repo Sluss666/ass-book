@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useFriends } from '../../context/friends/useFriends'
 
 const ChatSideBar = () => {
-
   const {friends} = useFriends()
   console.log('Amigos: ',friends)
   const [activeChat, setActiveChat] = useState('')

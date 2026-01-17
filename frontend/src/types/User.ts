@@ -10,4 +10,5 @@ export type User = {
   rol: Roles;
   phone?: string;
   pic?: string;
+  online?:boolean;
 };

@@ -13,6 +13,12 @@ import { NotificationsProvider } from './context/notifications/NotificationsProv
 import { SocketProvider } from './context/sockets/SocketProvider'
 import { ChatsProvider } from './context/chats/ChatsProvider'
 
+
+
+const token = localStorage.getItem('token') ?? undefined
+const userData = localStorage.getItem('userData') ?? undefined
+const userId = userData ?? undefined
+
 function App() {
 
   return (
@@ -22,7 +28,7 @@ function App() {
           <FriendsProvider>
             <ResponseProvider>
               <NotificationsProvider>
-                <SocketProvider>
+                <SocketProvider token={token} userId={userId}>
                   <ChatsProvider>
                     <Routes>
                       <Route path='/' element={<PublicRoutes><LayoutWrapper /></PublicRoutes>}>

@@ -5,6 +5,7 @@ interface LayoutProps {
 }
 function Layout({titles}:LayoutProps){
     const { title, text } = titles
+    
     return (
         <div className="fixed h-screen w-screen md:flex">
             <div className="w-full md:w-3/4 my-10 md:my-0">
