@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import {useState } from 'react'
 import { useFriends } from '../../context/friends/useFriends'
 
 const ChatSideBar = () => {
   const {friends} = useFriends()
+
   console.log('Amigos: ',friends)
   const [activeChat, setActiveChat] = useState('')
   const sendMessage = async(e:React.KeyboardEvent<HTMLTextAreaElement>)=>{
@@ -46,7 +47,8 @@ const ChatSideBar = () => {
     <section className="fixed right-0 top-[105px] h-[calc(100vh-105px)] w-64 bg-white border-l border-gray-300 shadow-md p-2 overflow-y-auto z-10">
         <h2 className="text-xl font-semibold mb-2">Chats</h2>
         <ul className="space-y-1">
-          {friends.map((friend) => (
+          {friends.length > 0 && friends.map((friend) => typeof friend != 'undefined' ?(
+            
             <li
               key={friend._id}
               onClick={() => setActiveChat(friend._id)}
@@ -63,7 +65,7 @@ const ChatSideBar = () => {
                 {friend.user}
               </span>
             </li>
-          ))}
+          ): friend)}
         </ul>
 
          

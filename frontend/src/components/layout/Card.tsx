@@ -17,14 +17,14 @@ const Card = () => {
                                     size={40}
                                     />
                                 </div>
-            ) : (
+            ) : ( user &&
                 <>
                     <img
                     className="md:w-14 rounded-full shadow-md"
                     alt="profile-picture"
                     src={
-                        user?.pic && user.pic !== ""
-                            ? user?.pic
+                        user.pic && user.pic !== ""
+                            ? user.pic
                             : "/assets/profile_pictures/default-profile-pic.jpg"
                     }
                     />

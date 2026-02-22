@@ -1,7 +1,8 @@
 export type Roles = 'admin' | 'mod' | 'user' | 'unactive' | 'guest';
 
 export type User = {
-  _id:string
+  _id?:string
+  id?:string
   name?: string;
   surnames?: string;
   image?: string;

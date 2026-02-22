@@ -6,15 +6,11 @@ import ChatSideBar from "../../components/layout/ChatSideBar"
 import Nav from '../../components/layout/Nav'
 import { useResponse } from "../../context/res/useResponse"
 import Alert from "../../components/layout/Alert"
-import { useSocket } from "../../context/sockets/useSocket"
-import { useEffect } from "react"
-import { RiRadarFill } from "react-icons/ri"
+
+
 const Layout = () => {
-  const socket=useSocket()
-  useEffect(()=>{
-    if(!socket)return
-  },[])    
   const { response } = useResponse()
+  
   return (
     <div className="w-screen h-screen m-0">
       {(response.error != undefined && response.msg !== '') && (
@@ -26,7 +22,8 @@ const Layout = () => {
         <Card/>
       </nav>
 
-      {/* Left Chat Sidebar  */}
+      {/* Left Chat Sidebar  */ }
+      {<>{console.log('Rendering FindPeople component')}</>}
       <FindPeople/> 
 
       {/* Social media content */}

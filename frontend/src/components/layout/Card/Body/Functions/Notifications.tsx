@@ -3,8 +3,11 @@ import { useState } from "react";
 import { HiBell } from "react-icons/hi2";
 import { useNotifications } from "../../../../../context/notifications/useNotifications";
 import FriendRequest from "./Notifications/FriendRequest";
+import { useUser } from "../../../../../context/useUser";
+import NoNots from "./Notifications/NoNots";
 
 const Notifications = () => {
+  const { user } = useUser();
   const { friendsRequests } = useNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const toggleMenu = () => setNotificationsOpen((prev) => !prev);
@@ -29,17 +32,15 @@ const Notifications = () => {
               </div>
               {friendsRequests.length > 0 && friendsRequests.find(request => request.state == 'pending') ? (
                 <>
-                  {friendsRequests.map(request=>(    
-                       <FriendRequest key={request._id} request={request}/>
+                  {friendsRequests.map((request) => (
+                      console.log('Notification Request:', request, "User TO:", String(request.to._id||request.to.id)),
+                      request.state == 'pending' && String(request.to._id||request.to.id) == String(user?._id) ?
+                       <FriendRequest key={request._id} request={request}/> : <NoNots />
                     ))
                   }
                 </>
               ) : (
-                <div className="p-2 mt-2">
-                  <p className="text-center font-bold text-xl opacity-30">
-                    No Notifications to Show
-                  </p>
-                </div>
+                <NoNots />
               )}
             </motion.div>
           </div>

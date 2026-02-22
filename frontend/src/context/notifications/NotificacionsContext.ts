@@ -10,6 +10,7 @@ export interface notificationsContext {
     setNotifications:React.Dispatch<React.SetStateAction<notification[]>>
     notifications:notification[]
     fetchNotifications:()=>Promise<void>
+    setFriendsRequests:React.Dispatch<React.SetStateAction<FRequest[]>>
     fetchFriendRequests:()=>Promise<void>
     isLoading:boolean|undefined
     friendsRequests:FRequest[]

@@ -6,10 +6,15 @@ import type {Friends} from '../../types/Friendships'
 import { useUser } from '../useUser'
 
 
+
 export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
     const [ isLoading, setIsLoading ] = useState(true)
     const [ friends, setFriends] = useState<Friends[]>([])
     const { user } = useUser()
+    useEffect(()=>{
+        if(!user?._id && !user?.id) return
+        fetchFriends()
+    }, [user])
     const fetchFriends = async()=>{
         try{
             setIsLoading(true)
@@ -20,16 +25,15 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
                 console.error(`user not found or undefined: ${user}`)
                 return 
             }
-            const {data} = await api.get<Friends[]>(`friends/fetch/${user._id}`, {
+            const {data} = await api.get<Friends[]>(`friends/fetch/${user._id ?? user.id}`, {
                 headers:{
                     Authorization:`Bearer ${token}`
                 }
             })
-            console.log(`People has found: ${data}`)
-            setFriends(data)
+            console.log(`People has found:`, data)
+            setFriends(data.filter(d=>typeof d != 'undefined'))
         } catch(error){
-         console.error('Error fetching friends:', error)
-
+            console.error('Error fetching friends:', error)
         } finally {
             setIsLoading(false)
         }
@@ -60,10 +64,10 @@ export const FriendsProvider = ({children}:{children:React.ReactNode})=>{
 
     }
     useEffect(()=>{
-        fetchFriends()
+            fetchFriends()
     }, [user])
     return (
-        <FriendsContext.Provider value={{isLoading, friends, fetchFriends, requestResponse, sendRequest}}>
+        <FriendsContext.Provider value={{isLoading, friends, fetchFriends, requestResponse, sendRequest, setFriends}}>
             {children}
         </FriendsContext.Provider>
     )

@@ -11,7 +11,7 @@ export interface CardBody {
 function Body({ setIsLoading, setError, setText }: CardBody) {
   
   const {user} = useUser()
-
+console.log('User in Card Body:', user)
   const isPage = ($Segments: string[]): boolean => {
     const slicedPath = location.pathname.split("/").slice(1);
     return $Segments.every((segment, index) => slicedPath[index] == segment);
@@ -19,19 +19,21 @@ function Body({ setIsLoading, setError, setText }: CardBody) {
   
   return (
     <>
+    {user &&<>
       <div className="pl-2">
         <Link reloadDocument to={"self"} className="block mt-1 select-text">
-          <strong>{user?.user || "NoUser"}</strong>
+          <strong>{user.user || "NoUser"}</strong>
         </Link>
         {!isPage(["index", "self"]) && (
           <span className="absolute">
-            {user?.name && user?.surnames
-              ? `${user?.name} ${user?.surnames}`
+            {user.name && user.surnames
+              ? `${user.name} ${user.surnames}`
               : "NoName"}
           </span>
         )}
       </div>
       <Functions setIsLoading={setIsLoading} setText={setText} setError={setError}/>
+    </>}
     </>
   );
 }

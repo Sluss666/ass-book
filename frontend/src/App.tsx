@@ -28,8 +28,8 @@ function App() {
           <FriendsProvider>
             <ResponseProvider>
               <NotificationsProvider>
-                <SocketProvider token={token} userId={userId}>
                   <ChatsProvider>
+                <SocketProvider token={token} userId={userId}>
                     <Routes>
                       <Route path='/' element={<PublicRoutes><LayoutWrapper /></PublicRoutes>}>
                         <Route index element={<Login/>}/>
@@ -41,8 +41,8 @@ function App() {
                         <Route path='self' element={<></>}/>
                       </Route>
                     </Routes>
-                  </ChatsProvider>
                 </SocketProvider>
+                  </ChatsProvider>
               </NotificationsProvider>
             </ResponseProvider> 
           </FriendsProvider>

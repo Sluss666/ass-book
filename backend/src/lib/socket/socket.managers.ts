@@ -1,5 +1,6 @@
 // socketManager.ts
 import { Server } from "socket.io";
+import { RequestData } from "../../controllers/friendController";
 
 let io: Server | null = null;
 
@@ -23,11 +24,22 @@ export function getIo(): Server {
 
 // Emitir cambios sin tocar la base de datos
 export function emitUserOnline(userId: string) {
-  emitDepurate(true)
-  getIo().emit("online-status-change", { userId, online: true });
+  const io = getIo();
+  console.log('Sockets conectados:', io.sockets.sockets.size);
+  io.emit("online-status-change", { userId, online: true });
 }
-
 export function emitUserOffline(userId: string) {
   emitDepurate(true)
-  getIo().emit("online-status-change", { userId, online: false });
+  const io = getIo();
+  console.log('Sockets conectados:', io.sockets.sockets.size);
+  io.emit("online-status-change", { userId, online: false });
+}
+export function emitFriendRequest(data: RequestData) {
+  getIo().emit("request-received", data);
+}
+export function emitAcceptRequest(data: string) {
+  getIo().emit("request-accepted", data);
+}
+export function emitDeleteRequest(requestId: string, to: string) {
+  getIo().emit("request-deleted", { requestId, to });
 }

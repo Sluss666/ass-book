@@ -22,7 +22,7 @@ const FindPeopleUser = ({ u, setUsers}: Props) => {
 
   return (
     stay && (
-      <li className={`find-people-user border-y border-slate-600 flex justify-evenly p-3 py-0 w-full h-24 ${reqSent ? 'bg-green-600':'bg-white/90'} relative overflow-hidden`}>
+      <li data-userid={u._id} className={`find-people-user border-y border-slate-600 flex justify-evenly p-3 py-0 w-full h-24 ${reqSent ? 'bg-green-600':'bg-white/90'} relative overflow-hidden`}>
 
         {reqSent ? (
           <div className="bg-green-600 relative w-[100%] h-full flex items-center p-3">

@@ -2,6 +2,7 @@ import Notification from "../../models/Notification";
 import Message from "../../models/Message";
 import Chat from "../../models/Chat";
 import FriendRequest from "../../models/FriendRequest";
+import User from "../../models/User";
 // ==== Tipos de Socket.IO ====
 interface SendMessagePayload {
   chat_id: string;
@@ -10,9 +11,13 @@ interface SendMessagePayload {
   message?: string;
   gotImage?: boolean;
 }
+type RegisterPayload =|
+  string
+  | { _id: string };
 
-interface SendRequestPayload { from: string; to: string; }
+interface SendRequestPayload { requestId: string; from?: string; to?: string; }
 interface DeleteRequestPayload { requestId: string; to: string; }
+interface AcceptRequestPayload { requestId: string; to: string; from: string; }
 interface DeleteNotifPayload { notifId: string; to: string; }
 
 interface AckOk { ok: true; [k: string]: any }
@@ -20,12 +25,13 @@ interface AckErr { ok: false; err: string }
 type AckResult = AckOk | AckErr;
 
 export interface ClientToServerEvents {
-  register: (userId: string, ack?: (ok: boolean) => void) => void;
+  register: (uid: RegisterPayload, ack?: (ok: boolean) => void) => void;
   join_chat: (chatId: string, ack?: (ok: boolean) => void) => void;
   sendMessage: (data: SendMessagePayload, ack?: (res: AckResult) => void) => void;
   "send-request": (data: SendRequestPayload, ack?: (res: AckResult) => void) => void;
   "delete-request": (data: DeleteRequestPayload, ack?: (ok: boolean) => void) => void;
   "delete-notification": (data: DeleteNotifPayload, ack?: (ok: boolean) => void) => void;
+  "accept-request": (data: AcceptRequestPayload, ack?: (ok: boolean) => void) => void;
 }
 
 export interface ServerToClientEvents {
@@ -37,6 +43,8 @@ export interface ServerToClientEvents {
   "request-deleted": (requestId: string) => void;
   "notification-deleted": (notifId: string) => void;
   "online-status-change":({userId, online}:{userId:string, online:boolean})=>void
+  "online-users-sync": (userIds: string[]) => void;
+  "request-accepted": (requestId: string) => void;
 }
 
 export interface InterServerEvents {
@@ -57,17 +65,26 @@ const usersInChats: Map<string, Set<string>> = new Map(); // chatId -> Set<userI
 // ==== Utilidades ====
 function asStr(v: any): string { return v == null ? "" : String(v); }
 
-function addOnline(userId: string, socketId: string): void {
+function addOnline(userId: string, socketId: string) {
   let set = onlineUsers.get(userId);
-  if (!set) { set = new Set(); onlineUsers.set(userId, set); }
+
+  if (!set) {
+    set = new Set();
+    onlineUsers.set(userId, set);
+  }
+
   set.add(socketId);
 }
-
-function removeOnline(userId: string, socketId: string): void {
+async function removeOnline(userId: string, socketId: string): Promise<void> {
   const set = onlineUsers.get(userId);
   if (!set) return;
   set.delete(socketId);
   if (set.size === 0) onlineUsers.delete(userId);
+  const user = await User.findById(userId);
+  if (user) {
+    user.online = false;
+    await user.save();
+  }
 }
 
 function emitToUser(
@@ -87,16 +104,39 @@ function registerSocketHandlers(
 ) {
   io.on("connection", (socket) => {
     console.log("✅ Room creada en Socket:", socket.id);
+    
+    socket.on("register", (uid:RegisterPayload, ack) => {
+      
+  let userId= "";
+      console.log("uid:", typeof uid, "uid:", uid)
+  // 🔒 blindaje total
+  
+      if(typeof uid == 'string'){
+        try{
+          const parsed = JSON.parse(uid)
+          userId = parsed._id
+        }catch{
+          userId=uid
+        }
+      } else if (uid && typeof uid === "object") {
+    userId = uid._id;
+  }
 
-    socket.on("register", (userId, ack) => {
-      userId = asStr(userId);
-      if (!userId) { ack && ack(false); return; }
-      socket.data.userId = userId;
-      addOnline(userId, socket.id);
-      console.log(`🟢 Usuario ${userId} -> socket ${socket.id}`);
-      ack && ack(true);
-      io.emit("online-status-change", {userId, online:true})
-    });
+      console.log("uid:", typeof userId, "userid:", userId)
+  
+  if (!userId) {
+    console.warn("❌ register inválido:", uid);
+    ack?.(false);
+    return;
+  }
+  
+  socket.data.userId = userId;
+  socket.join(userId);
+  addOnline(userId, socket.id);
+  console.log("Sesiones del usuario ",uid , onlineUsers.get(userId)?.size);
+  
+  ack?.(true);
+});
 
     socket.on("join_chat", (chatId, ack) => {
       const userId = asStr(socket.data.userId);
@@ -154,14 +194,14 @@ function registerSocketHandlers(
         const to   = asStr(data.to);
         if (!from || !to) { ack && ack({ ok: false, err: "from/to requeridos" }); return; }
 
-        const request = await FriendRequest.create({ from, to, state: "pending" });
-        const notif = await Notification.create({
-          user: to, sender: from, type: "friend_request", content: "Nueva solicitud de amistad", read: false,
-        });
+        const request = await FriendRequest.findById(data.requestId).lean();
+        if(!request){
+          ack && ack({ ok: false, err: "Request not found" });
+          return;
+        }
 
         emitToUser(io, to, "request-received", request);
-        emitToUser(io, to, "notification-received", notif);
-        ack && ack({ ok: true, id: String(request._id) });
+        ack && ack({ ok: true, id: String(request?._id) });
       } catch (e: any) {
         console.error("Error send-request:", e);
         ack && ack({ ok: false, err: e?.message || "Error" });
@@ -182,6 +222,22 @@ function registerSocketHandlers(
         ack && ack(false);
       }
     });
+    socket.on("accept-request", async (data, ack) => {
+      try {
+        console.log("Accept-request data received:", data);
+        const requestId = asStr(data.requestId);
+        const to        = asStr(data.to);
+        const from      = asStr(data.from);
+        if (!requestId) { ack && ack(false); return; }
+        await FriendRequest.findByIdAndDelete(requestId);
+        emitToUser(io, to, "request-accepted", requestId);
+        emitToUser(io, from, "request-accepted", requestId);
+        ack && ack(true);
+      } catch (e) {
+        console.error("Error accept-request:", e);
+        ack && ack(false);
+      }
+    });
 
     socket.on("delete-notification", async (data, ack) => {
       try {
@@ -198,24 +254,31 @@ function registerSocketHandlers(
       }
     });
 
-    socket.on("disconnect", () => {
-      const userId = asStr(socket.data.userId);
-      console.log("❌ Cerrando Socket Room:", socket.id, "User:", userId || "N/A");
+    socket.on("disconnect", async (reason) => {
+  const userId = asStr(socket.data.userId);
 
-      if (userId) {
-        removeOnline(userId, socket.id);
+  console.log(
+    "❌ Cerrando Socket:",
+    socket.id,
+    "User:",
+    userId || "N/A",
+    "Reason:",
+    reason
+  );
 
-        io.emit("online-status-change", {userId, online:false})
+  if (!userId) return;
 
-        for (const [chatId, set] of usersInChats.entries()) {
-          if (set.has(userId)) {
-            set.delete(userId);
-            io.to(chatId).emit("userLeft", { userId, chatId });
-            if (set.size === 0) usersInChats.delete(chatId);
-          }
-        }
-      }
-    });
+  await removeOnline(userId, socket.id);
+
+const stillOnline = onlineUsers.get(userId)?.size;
+
+if (!stillOnline) {
+  socket.broadcast.emit("online-status-change", {
+    userId,
+    online: false,
+  });
+}
+});
   });
 }
 

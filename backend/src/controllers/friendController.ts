@@ -1,14 +1,21 @@
 import { RequestHandler } from "express";
-import FriendRequest from '../models/FriendRequest';
+import FriendRequest, { type ReqStates } from '../models/FriendRequest';
 import FriendShip from '../models/FriendShip';
 import User from "../models/User";
 import { Types } from "mongoose";
+import { emitAcceptRequest, emitDeleteRequest, emitFriendRequest } from "../lib/socket/socket.managers";
 
 
-
+export type RequestData = { 
+  requestId: Types.ObjectId; 
+  from: { id: Types.ObjectId; user: string; name: string; }; 
+  to: { id: Types.ObjectId; user: string; name: string; }; 
+  state: ReqStates; 
+}
 
 const fetchFriends:RequestHandler = async(req, res)=>{
     try {
+      console.log(`Req params on fetchFriends:`, req.params)
       const { _id } = req.params;
       const user = await User.findById(_id).lean();
       if (!user) return res.status(404).json({ msg: 'User not found' });
@@ -57,12 +64,40 @@ const friendRequest:RequestHandler = async(req, res)=>{
         res.status(404).json({ msg: 'Users not found', error: true });
       return 
     }
-
+    const existFriendShip = await FriendShip.findOne({
+      $or:[
+        {
+          of:fromUser._id, 
+          with:toUser._id
+        },
+        {
+          of:toUser._id,
+          with:fromUser._id
+        }
+      ]
+    })
+    if (existFriendShip) return res.status(400).json({msg:'Already friends', error:true})
     const newRequest = new FriendRequest({
       from: fromUser._id,
       to: toUser._id
     });
     await newRequest.save();
+
+    const data = {
+      requestId: newRequest._id,
+      from: {
+        id: fromUser._id,
+        user: fromUser.user,
+        name: fromUser.name,
+      },
+      to: {
+        id: toUser._id,
+        user: toUser.user,
+        name: toUser.name,
+      },
+      state: newRequest.state
+    }
+    emitFriendRequest(data);
 
     res.status(201).json({ msg: 'Friend request sent', error: false });
   } catch (e) {
@@ -90,8 +125,10 @@ try {
         of: new Types.ObjectId(userSend as string),
         with: new Types.ObjectId(responseUserId as string)
       })
+      emitAcceptRequest(friendRequest._id.toString());
       await friendRequest.deleteOne()}
     else if(state === 'declined')
+      emitDeleteRequest(friendRequest._id.toString(), responseUserId as string);
       await friendRequest.deleteOne()
     res.status(200).json({ error: false, msg: `Friendship request ${state}` });
   } catch (e) {

@@ -1,73 +1,52 @@
-
-    // src/lib/socket.ts
-import { io, Socket } from "socket.io-client";
+// src/lib/socket.client.ts
+import { io, type Socket } from "socket.io-client";
 import type { Message } from "../types/Messages";
 
-// If you use envs in Vite:
-const API_URL = import.meta.env.VITE_EXPRESS_API_URL ?? "http://localhost:4004";
+const API_FOCUS = import.meta.env.VITE_EXPRESS_API_URL ?? "http://localhost:4004";
 
-// ---- Types (adapt to your server events) ----
 type ServerToClientEvents = {
   connected: (payload: { userId: string }) => void;
   userJoined: (data: { userId: string; chatId: string }) => void;
   "message:new": (msg: Message) => void;
   typing: (data: { chatId: string; userId: string; isTyping: boolean }) => void;
+  "online-status-change": (data: { userId: string; online: boolean }) => void;
+  "request-received": (data: { userId: string; online: boolean }) => void;
+  "request-accepted": (requestId: string) => void;
+  "request-deleted": (data: { requestId: string; to: string; }) => void;
 };
 
 type ClientToServerEvents = {
   register: (userId: string) => void;
   join_chat: (chatId: string) => void;
-  "message:send": (data: { chatId: string; text: string }) => void;
+  "accept-request":(data:{requestId:string | undefined;to:string|undefined;from:string|undefined})=> void;
+  "message:send": (data: { chatId: string; text: string }) =>void
   typing: (data: { chatId: string; isTyping: boolean }) => void;
 };
 
 export type ISocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
+// Variable global para el socket
 let socket: ISocket | null = null;
 
-/** Call ONCE after you have a token (or without token if anonymous). */
-export function connectSocket(token?: string) {
-  if (socket?.connected) return socket;
-
-  socket = io(API_URL, {
-    // If you used cookie-based auth instead, keep withCredentials: true
-    withCredentials: false,
-    transports: ["websocket", "polling"], // faster dev DX; Socket.io will fall back if needed
+/** Crea un socket NUEVO para cada token/usuario */
+export function createSocket(token?: string): ISocket {
+  return io(API_FOCUS, {
+    transports: ["websocket"],
+    reconnection:true,
+    withCredentials: true,
     auth: token ? { token } : undefined,
-    autoConnect: true,
-    reconnection: true,
-    reconnectionAttempts: Infinity,
-    reconnectionDelay: 500,
-    reconnectionDelayMax: 3000,
   }) as ISocket;
-
-  // Optional: basic logs
-  socket.on("connect", () => console.log("🔌 socket connected:", socket?.id));
-  socket.on("disconnect", (r) => console.log("❌ socket disconnected:", r));
-  socket.on("connect_error", (e) => console.error("⚠️ socket error:", e.message));
-
-  return socket;
 }
 
-/** Update token after login without rebuilding the socket instance. */
-export function updateSocketAuth(token?: string) {
-  if (!socket) return;
-  // @ts-expect-error - Socket.io allows mutation of auth before reconnect
-  socket.auth = token ? { token } : undefined;
-  // reconnect with new auth
-  if (!socket.connected) socket.connect();
-}
-
-/** Get current socket (may be null if not connected yet). */
-export function getSocket() {
-  return socket;
-}
-
-/** Close socket (e.g., on logout). */
+/** Desconecta y elimina el socket del frontend */
 export function disconnectSocket() {
   if (socket) {
-    socket.removeAllListeners();
-    socket.disconnect();
-    socket = null;
+    console.log("⚡ Desconectando socket frontend...");
+    socket.removeAllListeners(); // quita todos los listeners
+    socket.disconnect(); // desconecta del backend
+    socket = null; // elimina referencia
   }
 }
+
+/** Obtener socket actual (puede ser null) */
+export const getSocket = () => socket;

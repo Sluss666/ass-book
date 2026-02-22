@@ -1,16 +1,18 @@
 import type { FRequest, FShipStates } from "../../../../../../../../types/Friendships"
 import api from "../../../../../../../../conf/api"
 import { useResponse } from "../../../../../../../../context/res/useResponse"
-
+import { useSocket } from "../../../../../../../../context/sockets/useSocket"
 const Buttons = ({request, setRequestState}:{request:FRequest, setRequestState:React.Dispatch<React.SetStateAction<FShipStates>>}) => {
     const {setResponse} = useResponse()
+    const socketContext = useSocket()
+    const {socket} = socketContext || {}
    const responseRequest = async (state:FShipStates)=>{
     try {
       const token = localStorage.getItem('token')
       const {data} = await api.post('friends/response-request', {
         
-         responseUserId:request.to._id,
-         userSend:request.from._id,
+         responseUserId:request.to._id||request.to.id,
+         userSend:request.from._id||request.from.id,
          state:state
       }, {
         headers:{
@@ -21,6 +23,11 @@ const Buttons = ({request, setRequestState}:{request:FRequest, setRequestState:R
       if(data.error){
         setResponse({msg:data.msg, error:data.error})
         return
+      }
+      if(state==='accepted'){
+          console.log('Going to emit accept-request socket event', request)
+        socket?.emit("accept-request", {requestId:request._id, to:request.from._id, from:request.to._id})
+        setResponse({msg:'Friend Request Accepted!', error:false})
       }
       setRequestState(state)
     } catch(e){

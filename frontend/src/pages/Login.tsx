@@ -12,7 +12,8 @@ import { useNavigate } from 'react-router-dom'
 
 const Login = ()=>{
     const navigate = useNavigate()
-    const socket = useSocket()
+    const socketContext = useSocket()
+    const socket = socketContext?.socket;
     const { setUser } = useUser()
     const UsernameProps : InputProps =
         {id:'username', type:'text', label:'Username:', placeholder:'Put your username'}
@@ -59,7 +60,7 @@ const Login = ()=>{
                 description:data.user.description,
                 pic:data.user.pic
             }
-            setUser(userData)
+            setUser(JSON.stringify(userData) )
             setTimeout(()=>{
                 socket?.emit("register", data.user._id)
                 setStatus('success');setText(data.msg)
@@ -86,7 +87,7 @@ const Login = ()=>{
                 {(!loading && status !== 'success') && (
                     <>
                         {UsernameInput()}
-                        {PasswordInput()}
+                         {PasswordInput()}
                         <Nav />
                     </>
                     )

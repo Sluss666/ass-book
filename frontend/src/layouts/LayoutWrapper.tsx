@@ -8,8 +8,8 @@ const LayoutWrapper = () => {
     const location = useLocation()
     
     const routesObj : { [key:string]: Route} = {
-        "/": {title:"DamnBook | Login", text:"Enter DamnBook"},
-        "/sign-up": {title:"DamnBook | Register", text:"Sign up"}
+        "/": {title:"DamnBook | Login", text:"Enter The DamnBook"},
+        "/sign-up": {title:"DamnBook | Register", text:"Register DamnBook"},
     }
     const titles = routesObj[location.pathname] || { title: "DamnBook", text: "" };
 

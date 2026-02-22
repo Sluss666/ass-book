@@ -7,14 +7,14 @@ import type { FRequest } from "../../types/Friendships"
 export const NotificationsProvider = ({children}:{children:React.ReactNode})=>{
   const [ isLoading, setIsLoading ] = useState<boolean>()
   const [notifications, setNotifications] = useState<notification[]>([])
-  const [ friendsRequests, setFriendsRequest] = useState<FRequest[]>([])
+  const [ friendsRequests, setFriendsRequests] = useState<FRequest[]>([])
   const {user}= useUser()
   const fetchFriendRequests = async()=>{
     try {
       setIsLoading(true)
       const token = localStorage.getItem('token')
       console.log('Inside fetch FRequests', user)
-      if(!user){
+      if(!user?.id && !user?._id){
         console.error(`user not found or undefined: ${user}`)
         return 
       }
@@ -24,7 +24,7 @@ export const NotificationsProvider = ({children}:{children:React.ReactNode})=>{
         }
       })
       console.log('Friends Requests:',data)
-      setFriendsRequest(data as FRequest[])
+      setFriendsRequests(data as FRequest[])
     } catch(e){
       console.error('Error fetching friend requests:', e)
     } finally {
@@ -38,7 +38,7 @@ export const NotificationsProvider = ({children}:{children:React.ReactNode})=>{
     fetchFriendRequests()
   }, [user])
   return (
-    <NotificationsContext.Provider value={{isLoading, friendsRequests, notifications, fetchNotifications, setNotifications, fetchFriendRequests}}>
+    <NotificationsContext.Provider value={{isLoading, friendsRequests, notifications, fetchNotifications, setNotifications, fetchFriendRequests, setFriendsRequests}}>
       {children}
     </NotificationsContext.Provider>
   )

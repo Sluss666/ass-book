@@ -1,3 +1,9 @@
 import { createContext } from "react";
-import { Socket } from "socket.io-client";
-export const SocketContext = createContext<Socket | null>(null)
+import type { ISocket } from "../../lib/socket.client";
+
+export interface SocketContextType {
+  socket: ISocket | null;
+  setSocket: (socket: ISocket | null) => void;
+}
+
+export const SocketContext = createContext<SocketContextType>(null as any);

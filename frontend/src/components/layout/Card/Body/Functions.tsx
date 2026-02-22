@@ -5,9 +5,20 @@ import { useUser } from "../../../../context/useUser";
 import api from "../../../../conf/api";
 import Menu from "./Functions/Menu";
 import Notifications from "./Functions/Notifications";
+import { disconnectSocket } from "../../../../lib/socket.client";
+import type { User } from "../../../../types/User";
+import { useNavigate } from "react-router-dom";
 
 function Functions({ setIsLoading, setError, setText }: CardBody) {
-    const { user, setUser } = useUser()
+    const navigate = useNavigate()
+    const { user, setUser } = useUser() as { user: User | null, setUser: (user: User | null) => void };
+    const exit = async () => {
+        setUser(null);
+            localStorage.removeItem("token");
+            localStorage.removeItem("rol");
+            disconnectSocket();
+            navigate("/", {replace: true});
+    }
     const handleLogout = async () => {
         console.log(`User is tryna loggin out: `, user);
         setIsLoading(true);
@@ -29,21 +40,11 @@ function Functions({ setIsLoading, setError, setText }: CardBody) {
                 setText("Try Again");
                 return;
             }
-            setUser({
-                _id: "",
-                name: "",
-                surnames: "",
-                rol: "guest",
-                user: "",
-                phone: "",
-                description: "",
-                pic: "",
-            });
-            localStorage.removeItem("token");
-            localStorage.removeItem("rol");
-            window.location.reload();
-        } catch (e) {
+            exit();
+        } catch (e: any) {
+
             console.error("Logout error:", e);
+            if(e.response?.data?.msg == "You're already logged out"){ console.log("Already logged out"); exit();}
         } finally {
             setTimeout(() => setIsLoading(false), 1000);
         }

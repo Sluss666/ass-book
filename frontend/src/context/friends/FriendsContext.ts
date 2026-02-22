@@ -19,6 +19,7 @@ export interface FSContext {
     sendRequest:({_id}:Request)=>Promise<SendRequestResponse>
     requestResponse:({requestId, response}:Response)=>Promise<void>
     isLoading:boolean
+    setFriends: React.Dispatch<React.SetStateAction<Friends[]>>
 }
 
 export const FriendsContext = createContext<FSContext|undefined>(undefined)

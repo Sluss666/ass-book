@@ -8,10 +8,13 @@ export type FShip = {
 
 export interface Friends extends FShip{
     user?: string;
+    id?: string;
     online?: boolean;
 }
 export type FRequest = {
-    _id:string
+    _id?:string
+    id?:string
+    requestId?:string
     from:User
     to:User
     state: FShipStates    

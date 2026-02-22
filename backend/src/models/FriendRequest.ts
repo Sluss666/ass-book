@@ -1,5 +1,5 @@
 import {model, Schema, Types, Document} from 'mongoose'
-type ReqStates = 'pending' | 'accepted' | 'declined'
+export type ReqStates = 'pending' | 'accepted' | 'declined'
 
 export interface FriendRequestITFace extends Document {
     _id:Types.ObjectId
